@@ -1,0 +1,7 @@
+Finder 0.0.3
+------------------
+
+- Application : Python 3.7
+- Base de données : MySQL
+- Auteur : Timothé Poznanski
+- Date : 2019
