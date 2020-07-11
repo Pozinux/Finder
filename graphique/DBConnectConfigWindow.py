@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:/Bull/Developpement/Python/Projets/vmfinder/vmfinder/graphique\DBConnectConfigWindow.ui',
-# licensing of 'C:/Bull/Developpement/Python/Projets/Fvmfinder/vmfinder/graphique\DBConnectConfigWindow.ui' applies.
+# Form implementation generated from reading ui file 'C:/Bull/Dev/Finder/Finder/graphique\DBConnectConfigWindow.ui',
+# licensing of 'C:/Bull/Dev/Finder/Finder/graphique\DBConnectConfigWindow.ui' applies.
 #
-# Created: Thu Jul  9 16:35:30 2020
+# Created: Sat Jul 11 08:01:36 2020
 #      by: pyside2-uic  running on PySide2 5.12.3
 #
 # WARNING! All changes made in this file will be lost!

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:/Bull/Developpement/Python/Projets/vmfinder/vmfinder/graphique\MainWindow.ui',
-# licensing of 'C:/Bull/Developpement/Python/Projets/vmfinder/vmfinder/graphique\MainWindow.ui' applies.
+# Form implementation generated from reading ui file 'C:/Bull/Dev/Finder/Finder/graphique\MainWindow.ui',
+# licensing of 'C:/Bull/Dev/Finder/Finder/graphique\MainWindow.ui' applies.
 #
-# Created: Thu Jul  9 16:35:30 2020
+# Created: Sat Jul 11 08:01:36 2020
 #      by: pyside2-uic  running on PySide2 5.12.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -97,7 +97,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtWidgets.QApplication.translate("MainWindow", "Finder", None, -1))
-        self.lineEdit.setPlaceholderText(QtWidgets.QApplication.translate("MainWindow", "Par exemple \"shl80345\", \"shw90\", \"124\", \"Recette\", \"CDV\" etc.. Possibilité aussi de saisir plusieurs entrées séparées par un espace.", None, -1))
+        self.lineEdit.setPlaceholderText(QtWidgets.QApplication.translate("MainWindow", "\"shl80345\", \"shw90\", \"124\", \"CDV\" etc.. Possibilité de saisir plusieurs entrées séparées par un espace.", None, -1))
         self.menuParameters.setTitle(QtWidgets.QApplication.translate("MainWindow", "Paramètres", None, -1))
         self.menuFile.setTitle(QtWidgets.QApplication.translate("MainWindow", "Fichier", None, -1))
         self.menuAbout.setTitle(QtWidgets.QApplication.translate("MainWindow", "A propos", None, -1))
