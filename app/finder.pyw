@@ -13,7 +13,7 @@ from app.ConfigureDatabase import ConfigureDatabase
 from app.DatabaseGestion import DatabaseGestion
 from app.ImportList import ImportList
 from app.Tools import Tools
-from graphique.MainWindow import Ui_MainWindow
+from app.graphique.MainWindow import Ui_MainWindow
 from app import tools2
 
 # A décommenter si je veux voir apparaitre les infos de debug que j'ai positionné (va prendre en compte tous les logging de tous les fichiers du projet)

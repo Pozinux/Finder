@@ -4,12 +4,12 @@ import configparser
 
 from PySide2 import QtWidgets
 
-import graphique.DBConnectConfigWindow
+import app.graphique.DBConnectConfigWindow
 
 
 # Class for my window that opens to configure the database
 # noinspection PyArgumentList
-class ConfigureDatabase(QtWidgets.QWidget, graphique.DBConnectConfigWindow.Ui_DBConnectConfigWindow):
+class ConfigureDatabase(QtWidgets.QWidget, app.graphique.DBConnectConfigWindow.Ui_DBConnectConfigWindow):
     def __init__(self, window_instance):
         self.window_instance = window_instance
         self.filename_ini = os.getcwd() + '\\config_db.ini'
