@@ -108,7 +108,7 @@
        <string/>
       </property>
       <property name="placeholderText">
-       <string>&quot;shl80345&quot;, &quot;shw90&quot;, &quot;124&quot;, &quot;CDV&quot; etc.. Possibilité de saisir plusieurs entrées séparées par un espace.</string>
+       <string>&quot;Serveur_1&quot;, &quot;Serv&quot;, &quot;124&quot;, &quot;CDV&quot; etc.. Possibilité de saisir plusieurs entrées séparées par un espace.</string>
       </property>
      </widget>
     </item>
