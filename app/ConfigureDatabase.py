@@ -5,6 +5,7 @@ import configparser
 from PySide2 import QtWidgets
 
 import app.graphique.DBConnectConfigWindow
+import constantes
 
 
 # Class for my window that opens to configure the database
@@ -12,7 +13,7 @@ import app.graphique.DBConnectConfigWindow
 class ConfigureDatabase(QtWidgets.QWidget, app.graphique.DBConnectConfigWindow.Ui_DBConnectConfigWindow):
     def __init__(self, window_instance):
         self.window_instance = window_instance
-        self.filename_ini = os.getcwd() + '\\config_db.ini'
+        self.filename_ini = constantes.CUR_DIR + '\\config_db.ini'
         self.section = 'mysql'
         self.host = None
         self.database = None

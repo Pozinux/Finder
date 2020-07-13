@@ -1,15 +1,14 @@
 import logging
 import os
 
+import constantes
 
 # Fichier créé avec des fonctions qui ne nécessitent pas d'affichage UI.
 # Par exemple get_export_files_folder_path est utilisée dans l'init du Creator de l'UI. Les fonctions dans Tools ont besoin de l'UI par contre. Donc je passe une instance de l'UI.
 
 
 def get_exports_files_folder_path(export_type):
-    #current_folder = os.path.dirname(__file__)
-    current_forlder_one_step_back = os.path.normpath(os.getcwd() + os.sep + os.pardir)
-    exports_files_folder_path = current_forlder_one_step_back + r"\exports\exports_" + export_type + "\\"
+    exports_files_folder_path = constantes.CUR_DIR + r"\exports\exports_" + export_type + "\\"
     logging.debug(f"exports_files_folder_path: {exports_files_folder_path}")
     return exports_files_folder_path
 

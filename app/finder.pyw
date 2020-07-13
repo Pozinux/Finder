@@ -15,6 +15,7 @@ from app.ImportList import ImportList
 from app.Tools import Tools
 from app.graphique.MainWindow import Ui_MainWindow
 from app import tools2
+import constantes
 
 # A décommenter si je veux voir apparaitre les infos de debug que j'ai positionné (va prendre en compte tous les logging de tous les fichiers du projet)
 # logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')  # Permet d'afficher les logs dans la console
@@ -49,8 +50,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.exports_folders_dates = ""
 
         # Lire le .ini
-        # print(os.getcwd())
-        self.filename_authorized_files_ini = os.getcwd() + r'\config_authorized_files.ini'  # os.getcwd() retourne le current working directory du process
+        self.filename_authorized_files_ini = constantes.CUR_DIR + r'\config_authorized_files.ini'  
 
         # Initialiser l'interface graphique
         self.setupUi(self)
@@ -63,18 +63,16 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setup_keyboard_shortcuts()  # Establish connections between keys and functions
         self.reset_progressbar_statusbar()  # When the window is launched, set the progress bar + status bar text to
         # self.textEdit.hide()  # When the window is launched, hide the textedit
-        self.setWindowIcon(QtGui.QIcon("../icons/window.png"))  # Set the window icon (does not work directly in QT Designer)
+        self.setWindowIcon(QtGui.QIcon("icons/window.png"))  # Set the window icon (does not work directly in QT Designer)
         self.menu_bar()  # Create the menu bar
         self.show()  # Display  main window
 
         # Creation of export directories when opening the application if they do not already exist
-        # current_folder = os.path.dirname(__file__)  # Retrieving the current folder where the script is executed
-        current_folder_one_step_back = os.path.normpath(os.getcwd() + os.sep + os.pardir)
-        exports_files_folder_path = current_folder_one_step_back + r"\exports\exports_opca\\"
+        exports_files_folder_path = constantes.CUR_DIR + r"\exports\exports_opca\\"
         pathlib.Path(exports_files_folder_path).mkdir(parents=True, exist_ok=True)  # Creating the opca export folder if it does not already exist
-        exports_files_folder_path = current_folder_one_step_back + r"\exports\exports_vmware\\"
+        exports_files_folder_path = constantes.CUR_DIR + r"\exports\exports_vmware\\"
         pathlib.Path(exports_files_folder_path).mkdir(parents=True, exist_ok=True)  # Creating the rvtools export folder if it does not already exist
-        exports_files_folder_path = current_folder_one_step_back + r"\exports\exports_cmdb\\"
+        exports_files_folder_path = constantes.CUR_DIR + r"\exports\exports_cmdb\\"
         pathlib.Path(exports_files_folder_path).mkdir(parents=True, exist_ok=True)  # Creating the cmdb export folder if it does not already exist
 
         self.get_export_folder_date("vmware")  # Récupérer et afficher la date du répertoire d'exports vmware
@@ -87,69 +85,69 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def menu_bar(self):
         # Menu File > exit
-        exit_action = QtWidgets.QAction(QtGui.QIcon('../icons/exit.png'), '&Exit', self)
+        exit_action = QtWidgets.QAction(QtGui.QIcon('icons/exit.png'), '&Exit', self)
         exit_action.setShortcut('Ctrl+Q')
         exit_action.setStatusTip("Exit the application")
         exit_action.triggered.connect(self.close)
 
         # Cette fonction n'est pas disponible pour le moment car bug depuis l'ajout des imports csv CMDB - A corriger plus tard + décommenter l'apparition du bouton plus bas
         # Menu file > Import
-        upload_one_export_action = QtWidgets.QAction(QtGui.QIcon('../icons/import.png'), '&Importer un export', self)
+        upload_one_export_action = QtWidgets.QAction(QtGui.QIcon('icons/import.png'), '&Importer un export', self)
         upload_one_export_action.setStatusTip("Importer un fichier RVTools (.xlsx ou .xls)")
         upload_one_export_action.triggered.connect(self.upload_one_export)
 
         # Menu file > Export
-        export_action = QtWidgets.QAction(QtGui.QIcon('../icons/save.png'), '&Exporter le resultat', self)
+        export_action = QtWidgets.QAction(QtGui.QIcon('icons/save.png'), '&Exporter le resultat', self)
         export_action.setStatusTip("Exporter le resultat de la recherche au format .csv")
         export_action.triggered.connect(self.export_result)
 
         # Menu fichier > Refesh BDD VMware
-        refresh_bdd_vmware = QtWidgets.QAction(QtGui.QIcon('../icons/refresh.png'), '&Mise à jour VMware', self)
+        refresh_bdd_vmware = QtWidgets.QAction(QtGui.QIcon('icons/refresh.png'), '&Mise à jour VMware', self)
         refresh_bdd_vmware.setStatusTip("Update the database from the RVTools that are present the exports folder")
         refresh_bdd_vmware.triggered.connect(lambda: self.update_db("vmware"))
 
         # Menu fichier > Refesh BDD OPCA
-        refresh_bdd_opca = QtWidgets.QAction(QtGui.QIcon('../icons/refresh.png'), '&Mise à jour OPCA', self)
+        refresh_bdd_opca = QtWidgets.QAction(QtGui.QIcon('icons/refresh.png'), '&Mise à jour OPCA', self)
         refresh_bdd_opca.setStatusTip("Update the database from the OPCA exports that are present the exports folder")
         refresh_bdd_opca.triggered.connect(lambda: self.update_db("opca"))
 
         # Menu fichier > Refesh BDD CMDB
-        refresh_bdd_cmdb = QtWidgets.QAction(QtGui.QIcon('../icons/refresh.png'), '&Mise à jour CMDB', self)
+        refresh_bdd_cmdb = QtWidgets.QAction(QtGui.QIcon('icons/refresh.png'), '&Mise à jour CMDB', self)
         refresh_bdd_cmdb.setStatusTip("Update the database from the CMDB exports that are present the exports folder")
         refresh_bdd_cmdb.triggered.connect(lambda: self.update_db("cmdb"))
 
         # Menu file > Renommer les exports
-        rename_export = QtWidgets.QAction(QtGui.QIcon('../icons/rename.png'), '&Renommer les exports', self)
+        rename_export = QtWidgets.QAction(QtGui.QIcon('icons/rename.png'), '&Renommer les exports', self)
         rename_export.setStatusTip("Renommer les fichiers d'exports en fonctions des infos du config_authorized_files.ini")
         rename_export.triggered.connect(self.rename_exports)
 
         # Menu Parameters > List the RVTools export files present
-        list_exports_action_vmware = QtWidgets.QAction(QtGui.QIcon('../icons/list.png'), '&Lister les exports RVTools', self)
+        list_exports_action_vmware = QtWidgets.QAction(QtGui.QIcon('icons/list.png'), '&Lister les exports RVTools', self)
         list_exports_action_vmware.setStatusTip("List the RVTools VMware export files (.xls/.xlsx) present")
         list_exports_action_vmware.triggered.connect(lambda: tools_instance.list_exports("vmware"))
 
         # Menu Parameters > List the OPCA export files present
-        list_exports_action_opca = QtWidgets.QAction(QtGui.QIcon('../icons/list.png'), '&Lister les exports OPCA', self)
+        list_exports_action_opca = QtWidgets.QAction(QtGui.QIcon('icons/list.png'), '&Lister les exports OPCA', self)
         list_exports_action_opca.setStatusTip("List the OPCA export files (.csv) present")
         list_exports_action_opca.triggered.connect(lambda: tools_instance.list_exports("opca"))
 
         # Menu Parameters > List the CMDB export files present
-        list_exports_action_cmdb = QtWidgets.QAction(QtGui.QIcon('../icons/list.png'), '&Lister les exports CMDB', self)
+        list_exports_action_cmdb = QtWidgets.QAction(QtGui.QIcon('icons/list.png'), '&Lister les exports CMDB', self)
         list_exports_action_cmdb.setStatusTip("List the CMDB export files (.csv) present")
         list_exports_action_cmdb.triggered.connect(lambda: tools_instance.list_exports("cmdb"))
 
         # Menu Parameters > List the export files authorized to be imported into the database
-        list_files_authorized_action = QtWidgets.QAction(QtGui.QIcon('../icons/list.png'), '&Lister les fichiers autorisés', self)
+        list_files_authorized_action = QtWidgets.QAction(QtGui.QIcon('icons/list.png'), '&Lister les fichiers autorisés', self)
         list_files_authorized_action.setStatusTip("Liste les exports autorisés à être importés dans la base en fonction des informations du fichier .ini")
         list_files_authorized_action.triggered.connect(self.display_list_authorized_files)
 
         # Menu Parameters > Configure the connection to the database
-        configure_database_action = QtWidgets.QAction(QtGui.QIcon('../icons/configdb.png'), '&Configurer la connexion à la base', self)
+        configure_database_action = QtWidgets.QAction(QtGui.QIcon('icons/configdb.png'), '&Configurer la connexion à la base', self)
         configure_database_action.setStatusTip("Configure the connection to the database")
         configure_database_action.triggered.connect(self.configure_database)
 
         # Menu About > About
-        see_about_action = QtWidgets.QAction(QtGui.QIcon('../icons/about.png'), '&A propos', self)
+        see_about_action = QtWidgets.QAction(QtGui.QIcon('icons/about.png'), '&A propos', self)
         see_about_action.setStatusTip("About")
         see_about_action.triggered.connect(self.see_about)
 
@@ -212,7 +210,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for file in dict_authorized_files.items():
             try:
-                os.rename(fr'..\exports\exports_{export_type}\\' + file[0], fr'..\exports\exports_{export_type}\\' + file[1])
+                os.rename(fr'exports\exports_{export_type}\\' + file[0], fr'exports\exports_{export_type}\\' + file[1])
                 self.files_renamed.append(file[0])
             except FileNotFoundError:
                 # print(file[0] + " : Ce fichier n'a pas été trouvé dans les exports présents.") # A décommenter pour le debug
@@ -268,7 +266,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def see_about(self):
         try:
-            with open(os.path.join('../data/about.txt'), 'r') as f:
+            with open(os.path.join('data/about.txt'), 'r') as f:
                 self.textEdit.setText(f.read())
         except IOError:
             print("File retrieving error...")
@@ -309,8 +307,8 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton.clicked.connect(self.search)
         self.pushButton_2.clicked.connect(self.import_list)
         # Make the button an image
-        search_icon = QtGui.QPixmap("../icons/search.png")
-        list_icon = QtGui.QPixmap("../icons/list.png")
+        search_icon = QtGui.QPixmap("icons/search.png")
+        list_icon = QtGui.QPixmap("icons/list.png")
         self.pushButton.setIcon(search_icon)
         self.pushButton_2.setIcon(list_icon)
         # ComboBox = drop-down menu

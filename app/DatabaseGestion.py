@@ -1,12 +1,14 @@
 import configparser
-from mysql.connector import errorcode, Error, MySQLConnection
-import os
 import logging
+
+from mysql.connector import errorcode, Error, MySQLConnection
+
+import constantes
 
 
 class DatabaseGestion:
     def __init__(self):
-        self.filename = os.getcwd() + '\\config_db.ini'
+        self.filename = constantes.CUR_DIR + '\\config_db.ini'
         self.section = 'mysql'
         self.dbc = {}
         self.conn = None
