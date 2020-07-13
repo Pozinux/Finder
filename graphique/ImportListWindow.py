@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'C:/Bull/Dev/Finder/Finder/graphique\ImportListWindow.ui',
 # licensing of 'C:/Bull/Dev/Finder/Finder/graphique\ImportListWindow.ui' applies.
 #
-# Created: Sat Jul 11 08:01:36 2020
+# Created: Mon Jul 13 16:37:19 2020
 #      by: pyside2-uic  running on PySide2 5.12.3
 #
 # WARNING! All changes made in this file will be lost!
