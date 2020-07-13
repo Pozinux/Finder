@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'C:/Bull/Dev/Finder/Finder/graphique\DBConnectConfigWindow.ui',
 # licensing of 'C:/Bull/Dev/Finder/Finder/graphique\DBConnectConfigWindow.ui' applies.
 #
-# Created: Mon Jul 13 16:39:34 2020
+# Created: Mon Jul 13 16:42:15 2020
 #      by: pyside2-uic  running on PySide2 5.12.3
 #
 # WARNING! All changes made in this file will be lost!
