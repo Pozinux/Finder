@@ -27,7 +27,6 @@ file = "file.ext"
 file_name = "file"
 file_ext = ".ext"
 file_folder = "folder2"
-file_folder_path = "D:\folder1\folder2"
 """
 
 
