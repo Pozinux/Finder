@@ -1,21 +1,19 @@
+import configparser
 import logging
 import os.path
 import pathlib
-import time
-import configparser
 import shutil
+import time
 
 import pandas
-
 from PySide2 import QtWidgets, QtGui, QtCore
 
+import constantes
 from app.ConfigureDatabase import ConfigureDatabase
 from app.DatabaseGestion import DatabaseGestion
 from app.ImportList import ImportList
 from app.Tools import Tools
 from app.graphique.MainWindow import Ui_MainWindow
-from app import tools2
-import constantes
 
 """ CONVENTIONS
 file_path = "D:\folder1\folder2\file.ext"

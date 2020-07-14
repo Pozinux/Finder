@@ -8,7 +8,7 @@ import AlignDelegate
 import DatabaseGestion
 import MyTableModel
 import constantes
-import tools2
+
 
 # Les fonctions dans Tools ont besoin de l'UI. Donc je passe une instance de l'UI.
 
