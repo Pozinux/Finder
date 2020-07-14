@@ -1,4 +1,4 @@
-Finder 0.0.5
+Finder 0.0.6
 ------------------
 
 - Application : Python 3.7
