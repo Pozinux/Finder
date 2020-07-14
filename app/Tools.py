@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+import sqlite3
 
 from PySide2 import QtWidgets
 
@@ -13,10 +14,55 @@ import constantes
 # Les fonctions dans Tools ont besoin de l'UI. Donc je passe une instance de l'UI.
 
 
+def create_sqlite_db():
+    conn = sqlite3.connect("data/sqlite_db_file.db")
+    c = conn.cursor()
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS serveur_vmware(
+        serveur_name text,
+        dns_name text,
+        host_name text,
+        management_name text  
+    )
+    """)
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS serveur_opca(
+            serveur_name text,
+            dns_name text,
+            host_name text,
+            management_name text  
+        )
+        """)
+    conn.commit()
+    conn.close()
+
+
 class Tools(QtWidgets.QWidget):
     def __init__(self, window_instance):
         self.window_instance = window_instance
         super(Tools, self).__init__()
+
+        create_sqlite_db()
+
+    def is_db_sqlite_empty(self):
+        self.window_instance.textEdit.setText("Base de donnée vide ? Vérification en cours...")
+        conn = sqlite3.connect("data/sqlite_db_file.db")
+        c = conn.cursor()
+        c.execute("SELECT * FROM serveur_vmware")
+        rows_vmware = c.fetchall()
+        if not rows_vmware:
+            print("Base VMware vide.")
+            return True
+        c.execute("SELECT * FROM serveur_opca")
+        rows_opca = c.fetchall()
+        if not rows_opca:
+            print("Base OPCA vide.")
+            conn.commit()
+            conn.close()
+            return True
+        conn.commit()
+        conn.close()
+        return False
 
     def is_db_empty(self):
         with DatabaseGestion.DatabaseGestion() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
@@ -53,6 +99,10 @@ class Tools(QtWidgets.QWidget):
 
             with DatabaseGestion.DatabaseGestion() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
                 if db_connection.error_db_connection is None:
+                    if self.is_db_sqlite_empty():
+                        pass
+                    else:
+                        print("Il y a des données !")
 
                     if self.is_db_empty():
                         pass
