@@ -214,7 +214,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def get_export_folder_date(self, export_type):
 
-        last_modified_date = time.strftime('%d/%m/%Y', time.gmtime(os.path.getmtime(f"{constantes.EXPORTS_DIR}\exports_{export_type}")))
+        last_modified_date = time.strftime('%d/%m/%Y', time.gmtime(os.path.getmtime(fr"{constantes.EXPORTS_DIR}\exports_{export_type}")))
 
         if export_type == "vmware":
             self.result_folder_vmware = f"Dernières modifications des exports {export_type} : {str(last_modified_date)}"
@@ -227,7 +227,8 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.exports_folders_dates = self.result_folder_vmware + "\n\n" + self.result_folder_opca + "\n\n" + self.result_folder_cmdb
         self.textEdit_2.setText(f"{self.exports_folders_dates}")
 
-    def read_authorized_files_config(self, section_ini_authorized_files):
+    @staticmethod
+    def read_authorized_files_config(section_ini_authorized_files):
         # Create a dictionary of authorized files
         # create parser and read ini configuration file
         authorized_files_parser = configparser.ConfigParser()
@@ -259,7 +260,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
     def list_authorized_files(self):
         self.authorized_files_vmware_source_list = self.read_authorized_files_config("authorized_files_vmware")
         self.authorized_files_opca_source_list = self.read_authorized_files_config("authorized_files_opca")
-        self.authorized_files_cmdb_source_list = self.read_authorized_files_config("authorized_files_cmdb")
+        self.authorized_files_cmdb_source_list = self.read_authorized_files_config("authorized_files_opca")
         self.authorized_files_source_list = self.authorized_files_vmware_source_list + self.authorized_files_opca_source_list + self.authorized_files_cmdb_source_list
 
     def display_list_authorized_files(self):

@@ -2,7 +2,7 @@ import os
 import logging
 
 # A décommenter pour voir les log dans tous les fichiers du projet ou "contantes.py" a été importé.
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - In %(filename)s - Line %(lineno)s - %(message)s')
+#logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - In %(filename)s - Line %(lineno)s - %(message)s')
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_DIR = os.path.join(CUR_DIR, "config")
