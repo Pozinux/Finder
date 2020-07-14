@@ -2,6 +2,6 @@ Finder 0.0.4
 ------------------
 
 - Application : Python 3.7
-- Base de donnÃ©es : MySQL
-- Auteur : TimothÃ© Poznanski
+- Base de données : MySQL
+- Auteur : Timothé Poznanski
 - Date : 2019
