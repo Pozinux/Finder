@@ -7,8 +7,8 @@ from PySide2 import QtWidgets
 import AlignDelegate
 import DatabaseGestion
 import MyTableModel
+import constantes
 import tools2
-
 
 # Les fonctions dans Tools ont besoin de l'UI. Donc je passe une instance de l'UI.
 
@@ -497,9 +497,8 @@ class Tools(QtWidgets.QWidget):
     def list_exports(self, export_type):
         files_authorized_list = []
         files_not_authorized_list = []
-        exports_files_folder_path = tools2.get_exports_files_folder_path(export_type)
         # Check if there are any exports in the folder concerned
-        if not os.listdir(exports_files_folder_path):
+        if not os.listdir(fr"{constantes.EXPORTS_DIR}\exports_{export_type}"):
             self.window_instance.textEdit.setText(f"Le répertoire des exports exports_{export_type} est vide.")
         else:
             files_paths_list = tools2.create_files_paths_list(export_type)

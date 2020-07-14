@@ -8,7 +8,7 @@ import constantes
 
 class DatabaseGestion:
     def __init__(self):
-        self.filename = constantes.CUR_DIR + '\\config_db.ini'
+        self.filename = constantes.CONFIG_DB_INI
         self.section = 'mysql'
         self.dbc = {}
         self.conn = None

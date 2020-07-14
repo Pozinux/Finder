@@ -13,7 +13,7 @@ import constantes
 class ConfigureDatabase(QtWidgets.QWidget, app.graphique.DBConnectConfigWindow.Ui_DBConnectConfigWindow):
     def __init__(self, window_instance):
         self.window_instance = window_instance
-        self.filename_ini = constantes.CUR_DIR + '\\config_db.ini'
+        self.filename_ini = constantes.CONFIG_DB_INI
         self.section = 'mysql'
         self.host = None
         self.database = None

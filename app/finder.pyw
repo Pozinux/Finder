@@ -17,11 +17,6 @@ from app.graphique.MainWindow import Ui_MainWindow
 from app import tools2
 import constantes
 
-# A décommenter si je veux voir apparaitre les infos de debug que j'ai positionné (va prendre en compte tous les logging de tous les fichiers du projet)
-# logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')  # Permet d'afficher les logs dans la console
-# logging.basicConfig(level=logging.DEBUG, filename="finder.log", filemode="w", format='%(asctime)s - %(levelname)s - %(message)s')  # Permet de logger dans un fichier
-
-
 """ CONVENTIONS
 file_path = "D:\folder1\folder2\file.ext"
 file = "file.ext"
@@ -65,12 +60,9 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.show()  # Display  main window
 
         # Creation of export directories when opening the application if they do not already exist
-        exports_files_folder_path = constantes.CUR_DIR + r"\exports\exports_opca\\"
-        pathlib.Path(exports_files_folder_path).mkdir(parents=True, exist_ok=True)  # Creating the opca export folder if it does not already exist
-        exports_files_folder_path = constantes.CUR_DIR + r"\exports\exports_vmware\\"
-        pathlib.Path(exports_files_folder_path).mkdir(parents=True, exist_ok=True)  # Creating the rvtools export folder if it does not already exist
-        exports_files_folder_path = constantes.CUR_DIR + r"\exports\exports_cmdb\\"
-        pathlib.Path(exports_files_folder_path).mkdir(parents=True, exist_ok=True)  # Creating the cmdb export folder if it does not already exist
+        pathlib.Path(constantes.EXPORTS_OPCA_DIR).mkdir(parents=True, exist_ok=True)  # Creating the opca export folder if it does not already exist
+        pathlib.Path(constantes.EXPORTS_VMWARE_DIR).mkdir(parents=True, exist_ok=True)  # Creating the rvtools export folder if it does not already exist
+        pathlib.Path(constantes.EXPORTS_CMDB_DIR).mkdir(parents=True, exist_ok=True)  # Creating the cmdb export folder if it does not already exist
 
         self.get_export_folder_date("vmware")  # Récupérer et afficher la date du répertoire d'exports vmware
         self.get_export_folder_date("opca")  # Récupérer et afficher la date du répertoire d'exports opca
@@ -195,7 +187,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def rename_imported_files_to_authorized_files(self, section_ini_authorized_files, export_type):
         authorized_files_parser = configparser.ConfigParser()
-        authorized_files_parser.read(constantes.AUTHORIZED_FILES_INI)
+        authorized_files_parser.read(constantes.CONFIG_AUTHORIZED_FILES_INI)
         dict_authorized_files = {}  # Init d'un dico des fichiers autorisés
 
         if authorized_files_parser.has_section(section_ini_authorized_files):
@@ -203,7 +195,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
             for authorized_files_item in authorized_files_items:
                 dict_authorized_files[authorized_files_item[0]] = authorized_files_item[1]
         else:
-            raise Exception(f'Section {section_ini_authorized_files} not found in the {constantes.AUTHORIZED_FILES_INI} file.')
+            raise Exception(f'Section {section_ini_authorized_files} not found in the {constantes.CONFIG_AUTHORIZED_FILES_INI} file.')
 
         for file in dict_authorized_files.items():
             try:
@@ -221,13 +213,8 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
             self.textEdit.setText("Pas de fichiers à renommer trouvés dans le répertoire des exports.")
 
     def get_export_folder_date(self, export_type):
-        exports_files_folder_path = ""
-        try:
-            exports_files_folder_path = tools2.get_exports_files_folder_path(export_type)  # Retrieving the path of the export folder
-        except OSError:
-            pass
 
-        last_modified_date = time.strftime('%d/%m/%Y', time.gmtime(os.path.getmtime(exports_files_folder_path)))
+        last_modified_date = time.strftime('%d/%m/%Y', time.gmtime(os.path.getmtime(f"{constantes.EXPORTS_DIR}\exports_{export_type}")))
 
         if export_type == "vmware":
             self.result_folder_vmware = f"Dernières modifications des exports {export_type} : {str(last_modified_date)}"
@@ -244,14 +231,14 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         # Create a dictionary of authorized files
         # create parser and read ini configuration file
         authorized_files_parser = configparser.ConfigParser()
-        authorized_files_parser.read(constantes.AUTHORIZED_FILES_INI)
+        authorized_files_parser.read(constantes.CONFIG_AUTHORIZED_FILES_INI)
         dict_authorized_files = {}  # Init d'un dico des fichiers autorisés
         if authorized_files_parser.has_section(section_ini_authorized_files):
             authorized_files_items = authorized_files_parser.items(section_ini_authorized_files)
             for authorized_files_item in authorized_files_items:
                 dict_authorized_files[authorized_files_item[0]] = authorized_files_item[1]
         else:
-            raise Exception(f'Error from finder file : Section {section_ini_authorized_files} not found in the {constantes.AUTHORIZED_FILES_INI} file.')
+            raise Exception(f'Error from finder file : Section {section_ini_authorized_files} not found in the {constantes.CONFIG_AUTHORIZED_FILES_INI} file.')
         authorized_files_source_list = list(dict_authorized_files.values())
         # print(self.authorized_files_source_list)
         return authorized_files_source_list
@@ -443,7 +430,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
                 export_types_dict = {'.xlsx': 'vmware', '.xls': 'vmware', '.csv': 'opca'}
                 export_type = export_types_dict.get(file_ext, 'Extension non autorisée !')  # if the extension is not allowed we will get "extension_not_autorised"
                 if export_type != "Extension non autorisée !":  # if the file is of a type present in the "export_types_dict" dict
-                    exports_files_folder_path = tools2.get_exports_files_folder_path(export_type)  # We get where we need to copy the export file
+                    exports_files_folder_path = fr"{constantes.EXPORTS_DIR}\exports_{export_type}"  # We get where we need to copy the export file
                     file_folder_copy_dest = exports_files_folder_path + file  # We create the full path of the new file
                     file_path = file_chosen[0]  # We get the path of the file to copy
                     try:
