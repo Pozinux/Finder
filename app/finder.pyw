@@ -155,7 +155,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.menuAbout.addAction(see_about_action)
 
     def check_config_db_file(self):
-        config_db_ini = "config_db.ini"
+        config_db_ini = constantes.CONFIG_DB_INI
         my_config_db_ini = pathlib.Path(config_db_ini)
         if my_config_db_ini.is_file():
             # print("Le fichier config_db_ini existe déjà.")
