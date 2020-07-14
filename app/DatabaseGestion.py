@@ -3,7 +3,7 @@ import logging
 
 from mysql.connector import errorcode, Error, MySQLConnection
 
-import constantes
+from config import constantes
 
 
 class DatabaseGestion:

@@ -5,7 +5,7 @@ import configparser
 from PySide2 import QtWidgets
 
 import app.graphique.DBConnectConfigWindow
-import constantes
+from config import constantes
 
 
 # Class for my window that opens to configure the database

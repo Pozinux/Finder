@@ -1,7 +1,8 @@
 import logging
 import os
 
-import constantes
+from config import constantes
+
 
 # Fichier créé avec des fonctions qui ne nécessitent pas d'affichage UI.
 # Par exemple get_export_files_folder_path est utilisée dans l'init du Creator de l'UI. Les fonctions dans Tools ont besoin de l'UI par contre. Donc je passe une instance de l'UI.
