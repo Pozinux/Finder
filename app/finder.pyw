@@ -258,7 +258,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
     def list_authorized_files(self):
         self.authorized_files_vmware_source_list = self.read_authorized_files_config("authorized_files_vmware")
         self.authorized_files_opca_source_list = self.read_authorized_files_config("authorized_files_opca")
-        self.authorized_files_cmdb_source_list = self.read_authorized_files_config("authorized_files_opca")
+        self.authorized_files_cmdb_source_list = self.read_authorized_files_config("authorized_files_cmdb")
         self.authorized_files_source_list = self.authorized_files_vmware_source_list + self.authorized_files_opca_source_list + self.authorized_files_cmdb_source_list
 
     def display_list_authorized_files(self):
