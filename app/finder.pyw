@@ -15,7 +15,7 @@ from app.ImportList import ImportList
 from app.Tools import Tools
 from app.graphique.MainWindow import Ui_MainWindow
 from app import tools2
-from config import constantes
+import constantes
 
 # A décommenter si je veux voir apparaitre les infos de debug que j'ai positionné (va prendre en compte tous les logging de tous les fichiers du projet)
 # logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')  # Permet d'afficher les logs dans la console
@@ -48,9 +48,6 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.result_folder_opca = ""
         self.result_folder_cmdb = ""
         self.exports_folders_dates = ""
-
-        # Lire le .ini
-        self.filename_authorized_files_ini = constantes.CUR_DIR + r'\config_authorized_files.ini'  
 
         # Initialiser l'interface graphique
         self.setupUi(self)
@@ -198,7 +195,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def rename_imported_files_to_authorized_files(self, section_ini_authorized_files, export_type):
         authorized_files_parser = configparser.ConfigParser()
-        authorized_files_parser.read(self.filename_authorized_files_ini)
+        authorized_files_parser.read(constantes.AUTHORIZED_FILES_INI)
         dict_authorized_files = {}  # Init d'un dico des fichiers autorisés
 
         if authorized_files_parser.has_section(section_ini_authorized_files):
@@ -206,7 +203,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
             for authorized_files_item in authorized_files_items:
                 dict_authorized_files[authorized_files_item[0]] = authorized_files_item[1]
         else:
-            raise Exception(f'Section {section_ini_authorized_files} not found in the {self.filename_authorized_files_ini} file.')
+            raise Exception(f'Section {section_ini_authorized_files} not found in the {constantes.AUTHORIZED_FILES_INI} file.')
 
         for file in dict_authorized_files.items():
             try:
@@ -247,14 +244,14 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         # Create a dictionary of authorized files
         # create parser and read ini configuration file
         authorized_files_parser = configparser.ConfigParser()
-        authorized_files_parser.read(self.filename_authorized_files_ini)
+        authorized_files_parser.read(constantes.AUTHORIZED_FILES_INI)
         dict_authorized_files = {}  # Init d'un dico des fichiers autorisés
         if authorized_files_parser.has_section(section_ini_authorized_files):
             authorized_files_items = authorized_files_parser.items(section_ini_authorized_files)
             for authorized_files_item in authorized_files_items:
                 dict_authorized_files[authorized_files_item[0]] = authorized_files_item[1]
         else:
-            raise Exception(f'Error from finder file : Section {section_ini_authorized_files} not found in the {self.filename_authorized_files_ini} file.')
+            raise Exception(f'Error from finder file : Section {section_ini_authorized_files} not found in the {constantes.AUTHORIZED_FILES_INI} file.')
         authorized_files_source_list = list(dict_authorized_files.values())
         # print(self.authorized_files_source_list)
         return authorized_files_source_list

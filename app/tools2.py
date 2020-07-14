@@ -1,7 +1,7 @@
 import logging
 import os
 
-from config import constantes
+import constantes
 
 
 # Fichier créé avec des fonctions qui ne nécessitent pas d'affichage UI.
