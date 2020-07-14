@@ -310,7 +310,14 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         df = None
         df_cmdb = None
         files_paths_authorized_list = []
-        files_paths_list = tools2.create_files_paths_list(export_type)
+
+        # Creates a list of files that are in the export folder where each element is of the type 'C:\\path\file.ext'
+        files_paths_list = []
+        exports_files_folder_path = fr"{constantes.EXPORTS_DIR}\exports_{export_type}"  # Retrieving the path of the export folder
+        for root, dirs, files in os.walk(exports_files_folder_path):
+            for file in files:
+                files_paths_list.append(os.path.join(root, file))
+
         for file_path in files_paths_list:
             file = os.path.basename(file_path)
             file_is_authorized = tools_instance.is_file_authorized(file)

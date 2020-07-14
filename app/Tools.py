@@ -501,7 +501,12 @@ class Tools(QtWidgets.QWidget):
         if not os.listdir(fr"{constantes.EXPORTS_DIR}\exports_{export_type}"):
             self.window_instance.textEdit.setText(f"Le répertoire des exports exports_{export_type} est vide.")
         else:
-            files_paths_list = tools2.create_files_paths_list(export_type)
+            # Creates a list of files that are in the export folder where each element is of the type 'C:\\path\file.ext'
+            files_paths_list = []
+            exports_files_folder_path = fr"{constantes.EXPORTS_DIR}\exports_{export_type}"  # Retrieving the path of the export folder
+            for root, dirs, files in os.walk(exports_files_folder_path):
+                for file in files:
+                    files_paths_list.append(os.path.join(root, file))
             number_authorized = number_not_authorized = 0
             for file_path in files_paths_list:
                 file = os.path.basename(file_path)
