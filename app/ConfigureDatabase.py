@@ -1,19 +1,14 @@
-import os.path
-import re
 import configparser
+import re
 
 from PySide2 import QtWidgets
-
-import app.graphique.DBConnectConfigWindow
-import constantes
 
 
 # Class for my window that opens to configure the database
 # noinspection PyArgumentList
-class ConfigureDatabase(QtWidgets.QWidget, app.graphique.DBConnectConfigWindow.Ui_DBConnectConfigWindow):
+class ConfigureDatabase(QtWidgets.QWidget):
     def __init__(self, window_instance):
         self.window_instance = window_instance
-        self.filename_ini = constantes.CONFIG_DB_INI
         self.section = 'mysql'
         self.host = None
         self.database = None
