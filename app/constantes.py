@@ -7,7 +7,6 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - I
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_DIR = os.path.join(CUR_DIR, "config")
 CONFIG_AUTHORIZED_FILES_INI = os.path.join(CONFIG_DIR, "config_authorized_files.ini")
-CONFIG_DB_INI = os.path.join(CONFIG_DIR, "config_db.ini")
 EXPORTS_DIR = os.path.join(CUR_DIR, "exports")
 DATA_DIR = os.path.join(CUR_DIR, "data")
 EXPORTS_VMWARE_DIR = os.path.join(EXPORTS_DIR, "exports_vmware")

@@ -24,11 +24,11 @@ class DatabaseGestionSqlite:
             self.cursor = self.conn.cursor()
         except sqlite3.Error as er:
             self.error_db_connection = str(er)
-            print('SQLite error: %s' % (' '.join(er.args)))
-            print("Exception class is: ", er.__class__)
-            print('SQLite traceback: ')
+            logging.debug('SQLite error: %s' % (' '.join(er.args)))
+            logging.debug("Exception class is: ", er.__class__)
+            logging.debug('SQLite traceback: ')
             exc_type, exc_value, exc_tb = sys.exc_info()
-            print(traceback.format_exception(exc_type, exc_value, exc_tb))
+            logging.debug(traceback.format_exception(exc_type, exc_value, exc_tb))
         return self  # We return the object otherwise in with there will be no object. With the use of with and the context manager, it is what __enter__ returns that is taken into account.
 
     def __exit__(self, *args):
@@ -46,11 +46,11 @@ class DatabaseGestionSqlite:
             self.cursor.execute(sql)
         except sqlite3.Error as er:
             self.error_db_connection = str(er)
-            print('SQLite error: %s' % (' '.join(er.args)))
-            print("Exception class is: ", er.__class__)
-            print('SQLite traceback: ')
+            logging.debug('SQLite error: %s' % (' '.join(er.args)))
+            logging.debug("Exception class is: ", er.__class__)
+            logging.debug('SQLite traceback: ')
             exc_type, exc_value, exc_tb = sys.exc_info()
-            print(traceback.format_exception(exc_type, exc_value, exc_tb))
+            logging.debug(traceback.format_exception(exc_type, exc_value, exc_tb))
 
     def sql_query_executemany(self, sql, datalist):
         try:
@@ -58,11 +58,11 @@ class DatabaseGestionSqlite:
             self.conn.commit()
         except sqlite3.Error as er:
             self.error_db_connection = str(er)
-            print('SQLite error: %s' % (' '.join(er.args)))
-            print("Exception class is: ", er.__class__)
-            print('SQLite traceback: ')
+            logging.debug('SQLite error: %s' % (' '.join(er.args)))
+            logging.debug("Exception class is: ", er.__class__)
+            logging.debug('SQLite traceback: ')
             exc_type, exc_value, exc_tb = sys.exc_info()
-            print(traceback.format_exception(exc_type, exc_value, exc_tb))
+            logging.debug(traceback.format_exception(exc_type, exc_value, exc_tb))
 
     def rows(self):
         return self.cursor.rowcount
