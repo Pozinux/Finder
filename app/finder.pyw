@@ -168,6 +168,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
                     # self.textEdit.setText("Paramètres de connexion à la base de donnée enregistrés.")  # Je l'enlève pour ne pas à l'avoir à chaque lancement de l'appli
                     self.textEdit.setText("")
         else:
+            logging.debug(f"config_db_ini -> {config_db_ini}")
             f = open(config_db_ini, 'w')
             f.write("[mysql]\n"
                     "host = hostname or IP\n"
