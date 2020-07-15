@@ -10,7 +10,7 @@ from PySide2 import QtWidgets, QtGui, QtCore
 
 import constantes
 from app.ConfigureDatabase import ConfigureDatabase
-from app.DatabaseGestion import DatabaseGestion
+from app.DatabaseGestionSqlite import DatabaseGestionSqlite
 from app.ImportList import ImportList
 from app.Tools import Tools
 from app.graphique.MainWindow import Ui_MainWindow
@@ -395,7 +395,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         main_window.textEdit.setText("Connexion à la base...")
         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
         time.sleep(2)  # The connection is sometimes so fast that there is no time to display the text that indicates the connection
-        with DatabaseGestion() as db_connection:  # "with" allows you to use a context manager that will automatically call the disconnect function when you exit the scope
+        with DatabaseGestionSqlite() as db_connection:  # "with" allows you to use a context manager that will automatically call the disconnect function when you exit the scope
             if db_connection.error_db_connection is None:
                 db_connection.sql_query_execute("TRUNCATE TABLE serveur_" + export_type)
                 main_window.textEdit.setText(f"Insertion des données de {export_type} dans la base...")
