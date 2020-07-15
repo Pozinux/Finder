@@ -34,7 +34,7 @@ class ConfigureDatabase(QtWidgets.QWidget, app.graphique.DBConnectConfigWindow.U
         self.close()
         # First we open the file in read mode
         try:
-            with open(os.path.join('config_db.ini'), 'r') as f:
+            with open(self.filename_ini, 'r') as f:
                 content = f.read()
                 content_new = re.sub(r'host =.*', r'host = ' + self.lineEdit.text(), content)
                 content_new1 = re.sub(r'database =.*', r'database = ' + self.lineEdit_2.text(), content_new)
@@ -44,7 +44,7 @@ class ConfigureDatabase(QtWidgets.QWidget, app.graphique.DBConnectConfigWindow.U
             print("Error in retreiving/reading the file...")
         # Open the file in write mode to replace with the new content
         try:
-            with open(os.path.join('config_db.ini'), 'w') as f:
+            with open(self.filename_ini, 'w') as f:
                 f.write(content_new3)
         except IOError:
             print("Error when writing the file...")
