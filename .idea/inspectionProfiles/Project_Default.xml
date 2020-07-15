@@ -9,6 +9,7 @@
           <option value="PySide2.QtWidgets.statusBar.*" />
           <option value="PySide2.QtWidgets.triggered.*" />
           <option value="typing.AbstractSet.*" />
+          <option value="list.reverse" />
         </list>
       </option>
     </inspection_tool>
