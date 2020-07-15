@@ -63,11 +63,11 @@ class Tools(QtWidgets.QWidget):
         search_choice = self.window_instance.comboBox.currentText()
         self.window_instance.textEdit.setText("Connexion à la base de données...")
         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
-        dict_search_choice = {'Serveur': 'serveur_name', 'Host': 'host_name', 'Application': 'appli_name'}
-        search_choice = dict_search_choice.get(search_choice, 'default')  # We get the field to use for the select and where in the SQL query and if it is neither of them we put "default"
+        #dict_search_choice = {'Serveur': 'serveur_name', 'Host': 'host_name', 'Application': 'appli_name'}
+        #search_choice = dict_search_choice.get(search_choice, 'default')  # We get the field to use for the select and where in the SQL query and if it is neither of them we put "default"
         logging.debug(f"search_choice: {search_choice}")
         logging.debug(f"search_list: {search_list}")
-        if search_choice == 'serveur_name':
+        if search_choice == 'Serveur':
             with DatabaseGestionSqlite.DatabaseGestionSqlite() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
                 if db_connection.error_db_connection is None:
                     if self.is_db_empty():
@@ -210,7 +210,7 @@ class Tools(QtWidgets.QWidget):
                     # self.window_instance.progressBar.hide()
                 else:
                     self.window_instance.textEdit.setText(db_connection.message_error_connection_db)
-        elif search_choice == 'host_name':
+        elif search_choice == 'Host':
             with DatabaseGestionSqlite.DatabaseGestionSqlite() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
                 if db_connection.error_db_connection is None:
                     if self.is_db_empty():
@@ -335,7 +335,7 @@ class Tools(QtWidgets.QWidget):
                         # self.window_instance.progressBar.hide()
                 else:
                     self.window_instance.textEdit.setText(db_connection.message_error_connection_db)
-        elif search_choice == 'appli_name':
+        elif search_choice == 'Application':
             with DatabaseGestionSqlite.DatabaseGestionSqlite() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
                 if db_connection.error_db_connection is None:
                     if self.is_db_empty():
