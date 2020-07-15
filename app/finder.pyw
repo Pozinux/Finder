@@ -9,8 +9,7 @@ import pandas
 from PySide2 import QtWidgets, QtGui, QtCore
 
 import constantes
-from app.ConfigureDatabase import ConfigureDatabase
-from app.DatabaseGestion import DatabaseGestion
+from app.DatabaseGestionSqlite import DatabaseGestionSqlite
 from app.ImportList import ImportList
 from app.Tools import Tools
 from app.graphique.MainWindow import Ui_MainWindow
@@ -67,7 +66,6 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.get_export_folder_date("cmdb")  # Récupérer et afficher la date du répertoire d'exports cmdb
         self.display_exports_folders_dates()
 
-        self.check_config_db_file()  # Je vérifie car je ne synchronise pas ce fichier avec git /   # Vérifier et afficher si paramètres connexion base par défaut
         self.list_authorized_files()  # Génére la liste des fichiers authorisés à l'ouverture de l'appli afin de pouvoir lister les exports (dans paramètres)
 
     def menu_bar(self):
@@ -128,11 +126,6 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         list_files_authorized_action.setStatusTip("Liste les exports autorisés à être importés dans la base en fonction des informations du fichier .ini")
         list_files_authorized_action.triggered.connect(self.display_list_authorized_files)
 
-        # Menu Parameters > Configure the connection to the database
-        configure_database_action = QtWidgets.QAction(QtGui.QIcon('icons/configdb.png'), '&Configurer la connexion à la base', self)
-        configure_database_action.setStatusTip("Configure the connection to the database")
-        configure_database_action.triggered.connect(self.configure_database)
-
         # Menu About > About
         see_about_action = QtWidgets.QAction(QtGui.QIcon('icons/about.png'), '&A propos', self)
         see_about_action.setStatusTip("About")
@@ -149,34 +142,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.menuParameters.addAction(list_exports_action_opca)
         self.menuParameters.addAction(list_exports_action_cmdb)
         self.menuParameters.addAction(list_files_authorized_action)
-        self.menuParameters.addAction(configure_database_action)
         self.menuAbout.addAction(see_about_action)
-
-    def check_config_db_file(self):
-        config_db_ini = constantes.CONFIG_DB_INI
-        my_config_db_ini = pathlib.Path(config_db_ini)
-        if my_config_db_ini.is_file():
-            # print("Le fichier config_db_ini existe déjà.")
-            with open(config_db_ini, 'r') as file:
-                file_into_string = file.read()
-                matches = ["hostname or IP", "database_name", "database_user", "database_password"]
-                # if any(x in file_into_string for x in matches):
-                match = next((x for x in matches if x in file_into_string), False)
-                if match:
-                    self.textEdit.setText(f"\"{match}\" est un paramètre par défaut.\n\nVeuillez modifier les paramètres de connexion à la base en allant dans Paramètres > Configurer la connexion à la base.")
-                else:
-                    # self.textEdit.setText("Paramètres de connexion à la base de donnée enregistrés.")  # Je l'enlève pour ne pas à l'avoir à chaque lancement de l'appli
-                    self.textEdit.setText("")
-        else:
-            logging.debug(f"config_db_ini -> {config_db_ini}")
-            f = open(config_db_ini, 'w')
-            f.write("[mysql]\n"
-                    "host = hostname or IP\n"
-                    "database = database_name\n"
-                    "user = database_user\n"
-                    "password = database_password\n")
-            f.close()
-            self.textEdit.setText("Veuillez enregistrer les paramètres de connexion à la BDD en allant dans Paramètres > Configurer la connexion à la base.")
 
     def rename_exports(self):
         self.files_renamed = []
@@ -362,8 +328,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
                 df = df.where((pandas.notnull(df)), 'N/A')  # Remplacer les 'nan' (générés par panda quand il n'y a pas de valeur dans la case excel) par des 'N/A' sinon SQL traitera les 'nan' comme des '0'
                 list_data_temp = df.values.tolist()
                 data_list.extend(list_data_temp)
-
-            # print(list_of_data)  # Donne une liste de listes
+            logging.debug(data_list)  # Donne une liste de listes
         elif export_type == "cmdb":
             # Create list of list from cmdb export file
             # print(files_paths_authorized_list)
@@ -396,18 +361,19 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         main_window.textEdit.setText("Connexion à la base...")
         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
         time.sleep(2)  # The connection is sometimes so fast that there is no time to display the text that indicates the connection
-        with DatabaseGestion() as db_connection:  # "with" allows you to use a context manager that will automatically call the disconnect function when you exit the scope
+        with DatabaseGestionSqlite() as db_connection:  # "with" allows you to use a context manager that will automatically call the disconnect function when you exit the scope
             if db_connection.error_db_connection is None:
-                db_connection.sql_query_execute("TRUNCATE TABLE serveur_" + export_type)
+                logging.debug("DELETE FROM serveur_" + export_type)
+                db_connection.sql_query_execute("DELETE FROM serveur_" + export_type)
                 main_window.textEdit.setText(f"Insertion des données de {export_type} dans la base...")
                 QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                 if export_type == "opca":
-                    db_connection.sql_query_executemany(f"INSERT INTO serveur_opca (serveur_name, dns_name, management_name, host_name) VALUES (%s,%s,%s,%s)", data_list)
+                    db_connection.sql_query_executemany(f"INSERT INTO serveur_opca (serveur_name, dns_name, management_name, host_name) VALUES (?,?,?,?)", data_list)
                 elif export_type == "vmware":
-                    db_connection.sql_query_executemany(f"INSERT INTO serveur_vmware (serveur_name, dns_name, management_name, host_name) VALUES (%s,%s,%s,%s)", data_list)
+                    db_connection.sql_query_executemany(f"INSERT INTO serveur_vmware (serveur_name, dns_name, management_name, host_name) VALUES (?,?,?,?)", data_list)
 
                 elif export_type == "cmdb":
-                    db_connection.sql_query_executemany(f"INSERT INTO serveur_cmdb (serveur_name, environment_name) VALUES (%s,%s)", list_data_cmdb)
+                    db_connection.sql_query_executemany(f"INSERT INTO serveur_cmdb (serveur_name, environment_name) VALUES (?,?)", list_data_cmdb)
 
                 if db_connection.error_db_execution is None:
                     main_window.textEdit.setText(f"La base de données {export_type} contient {str(db_connection.cursor.rowcount)} lignes.")
@@ -470,12 +436,6 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.window_import_list = ImportList(main_window, tools_instance)  # Je fourni à la classe ImportList l'instance main_window en paramètre
         self.reset_progressbar_statusbar()
         self.window_import_list.show()
-
-    def configure_database(self):
-        # noinspection PyAttributeOutsideInit
-        self.window_Configure_Database = ConfigureDatabase(main_window)
-        self.window_Configure_Database.show()
-        self.reset_progressbar_statusbar()
 
 
 # MAIN
