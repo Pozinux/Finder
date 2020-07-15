@@ -47,9 +47,10 @@ class Tools(QtWidgets.QWidget):
         # search_choice = dict_search_choice.get(search_choice, 'default')  # We get the field to use for the select and where in the SQL query and if it is neither of them we put "default"
         logging.debug(f"search_choice: {search_choice}")
         logging.debug(f"search_list: {search_list}")
-        if search_choice == 'Serveur':
-            with DatabaseGestionSqlite.DatabaseGestionSqlite() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
-                if db_connection.error_db_connection is None:
+
+        with DatabaseGestionSqlite.DatabaseGestionSqlite() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
+            if db_connection.error_db_connection is None:
+                if search_choice == 'Serveur':
                     if self.is_db_empty():
                         pass
                     else:
@@ -58,17 +59,17 @@ class Tools(QtWidgets.QWidget):
                         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                         if not search_list:
                             db_connection.sql_query_execute(f"""
-                            SELECT DISTINCT v.serveur_name, v.management_name, v.dns_name, c.environment_name
-                            FROM serveur_vmware as v 
-                            LEFT JOIN serveur_cmdb as c 
-                            ON(v.serveur_name = c.serveur_name)""")
+                                SELECT DISTINCT v.serveur_name, v.management_name, v.dns_name, c.environment_name
+                                FROM serveur_vmware as v 
+                                LEFT JOIN serveur_cmdb as c 
+                                ON(v.serveur_name = c.serveur_name)""")
 
                             rows_vmware = db_connection.cursor.fetchall()
 
                             db_connection.sql_query_execute(f"""SELECT DISTINCT o.serveur_name, o.management_name, o.dns_name, c.environment_name
-                            FROM serveur_opca as o 
-                            LEFT JOIN serveur_cmdb as c 
-                            ON(o.serveur_name = c.serveur_name)""")
+                                FROM serveur_opca as o 
+                                LEFT JOIN serveur_cmdb as c 
+                                ON(o.serveur_name = c.serveur_name)""")
 
                             rows_opca = db_connection.cursor.fetchall()
 
@@ -87,21 +88,21 @@ class Tools(QtWidgets.QWidget):
                                 self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...")
 
                                 db_connection.sql_query_execute(f"""
-                                SELECT DISTINCT v.serveur_name, v.management_name, v.dns_name, c.environment_name
-                                FROM serveur_vmware as v 
-                                LEFT JOIN serveur_cmdb as c 
-                                ON(v.serveur_name = c.serveur_name) 
-                                WHERE v.dns_name LIKE \'%{search_string}%\'
-                                OR v.serveur_name LIKE \'%{search_string}%\'""")
+                                    SELECT DISTINCT v.serveur_name, v.management_name, v.dns_name, c.environment_name
+                                    FROM serveur_vmware as v 
+                                    LEFT JOIN serveur_cmdb as c 
+                                    ON(v.serveur_name = c.serveur_name) 
+                                    WHERE v.dns_name LIKE \'%{search_string}%\'
+                                    OR v.serveur_name LIKE \'%{search_string}%\'""")
 
                                 rows_vmware = db_connection.cursor.fetchall()
 
                                 db_connection.sql_query_execute(f"""SELECT DISTINCT o.serveur_name, o.management_name, o.dns_name, c.environment_name
-                                FROM serveur_opca as o 
-                                LEFT JOIN serveur_cmdb as c 
-                                ON(o.serveur_name = c.serveur_name) 
-                                WHERE o.dns_name LIKE \'%{search_string}%\'
-                                OR o.serveur_name LIKE \'%{search_string}%\'""")
+                                    FROM serveur_opca as o 
+                                    LEFT JOIN serveur_cmdb as c 
+                                    ON(o.serveur_name = c.serveur_name) 
+                                    WHERE o.dns_name LIKE \'%{search_string}%\'
+                                    OR o.serveur_name LIKE \'%{search_string}%\'""")
 
                                 rows_opca = db_connection.cursor.fetchall()
 
@@ -188,11 +189,7 @@ class Tools(QtWidgets.QWidget):
 
                     self.window_instance.progressBar.reset()
                     # self.window_instance.progressBar.hide()
-                else:
-                    self.window_instance.textEdit.setText(db_connection.message_error_connection_db)
-        elif search_choice == 'Host':
-            with DatabaseGestionSqlite.DatabaseGestionSqlite() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
-                if db_connection.error_db_connection is None:
+                elif search_choice == 'Host':
                     if self.is_db_empty():
                         pass
                     else:
@@ -313,11 +310,7 @@ class Tools(QtWidgets.QWidget):
 
                         self.window_instance.progressBar.reset()
                         # self.window_instance.progressBar.hide()
-                else:
-                    self.window_instance.textEdit.setText(db_connection.message_error_connection_db)
-        elif search_choice == 'Application':
-            with DatabaseGestionSqlite.DatabaseGestionSqlite() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
-                if db_connection.error_db_connection is None:
+                elif search_choice == 'Application':
                     if self.is_db_empty():
                         pass
                     else:
@@ -326,18 +319,18 @@ class Tools(QtWidgets.QWidget):
                         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                         if not search_list:
                             db_connection.sql_query_execute(f"""
-                            SELECT c.environment_name, v.serveur_name
-                            FROM serveur_vmware as v 
-                            LEFT JOIN serveur_cmdb as c 
-                            ON(v.serveur_name = c.serveur_name)""")
+                                SELECT c.environment_name, v.serveur_name
+                                FROM serveur_vmware as v 
+                                LEFT JOIN serveur_cmdb as c 
+                                ON(v.serveur_name = c.serveur_name)""")
 
                             rows_vmware = db_connection.cursor.fetchall()
 
                             db_connection.sql_query_execute(f"""
-                            SELECT c.environment_name, o.serveur_name
-                            FROM serveur_opca as o 
-                            LEFT JOIN serveur_cmdb as c 
-                            ON(o.serveur_name = c.serveur_name)""")
+                                SELECT c.environment_name, o.serveur_name
+                                FROM serveur_opca as o 
+                                LEFT JOIN serveur_cmdb as c 
+                                ON(o.serveur_name = c.serveur_name)""")
 
                             rows_opca = db_connection.cursor.fetchall()
 
@@ -356,20 +349,20 @@ class Tools(QtWidgets.QWidget):
                                 self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...")
 
                                 db_connection.sql_query_execute(f"""
-                                SELECT c.environment_name, v.serveur_name
-                                FROM serveur_vmware as v 
-                                LEFT JOIN serveur_cmdb as c 
-                                ON(v.serveur_name = c.serveur_name) 
-                                WHERE c.environment_name LIKE \'%{search_string}%\'""")
+                                    SELECT c.environment_name, v.serveur_name
+                                    FROM serveur_vmware as v 
+                                    LEFT JOIN serveur_cmdb as c 
+                                    ON(v.serveur_name = c.serveur_name) 
+                                    WHERE c.environment_name LIKE \'%{search_string}%\'""")
 
                                 rows_vmware = db_connection.cursor.fetchall()
 
                                 db_connection.sql_query_execute(f"""
-                                SELECT c.environment_name, o.serveur_name
-                                FROM serveur_opca as o 
-                                LEFT JOIN serveur_cmdb as c 
-                                ON(o.serveur_name = c.serveur_name) 
-                                WHERE c.environment_name LIKE \'%{search_string}%\'""")
+                                    SELECT c.environment_name, o.serveur_name
+                                    FROM serveur_opca as o 
+                                    LEFT JOIN serveur_cmdb as c 
+                                    ON(o.serveur_name = c.serveur_name) 
+                                    WHERE c.environment_name LIKE \'%{search_string}%\'""")
 
                                 rows_opca = db_connection.cursor.fetchall()
 
@@ -456,8 +449,8 @@ class Tools(QtWidgets.QWidget):
 
                         self.window_instance.progressBar.reset()
                         # self.window_instance.progressBar.hide()
-                else:
-                    self.window_instance.textEdit.setText(db_connection.message_error_connection_db)
+            else:
+                self.window_instance.textEdit.setText(db_connection.message_error_connection_db)
 
     def is_file_authorized(self, file):
         """ If the file is in the list of authorized_files, we copy the file
