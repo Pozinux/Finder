@@ -363,7 +363,8 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         time.sleep(2)  # The connection is sometimes so fast that there is no time to display the text that indicates the connection
         with DatabaseGestionSqlite() as db_connection:  # "with" allows you to use a context manager that will automatically call the disconnect function when you exit the scope
             if db_connection.error_db_connection is None:
-                db_connection.sql_query_execute("TRUNCATE TABLE serveur_" + export_type)
+                logging.debug("DELETE FROM serveur_" + export_type)
+                db_connection.sql_query_execute("DELETE FROM serveur_" + export_type)
                 main_window.textEdit.setText(f"Insertion des données de {export_type} dans la base...")
                 QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                 if export_type == "opca":
