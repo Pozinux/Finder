@@ -13,42 +13,10 @@ import constantes
 
 # Les fonctions dans Tools ont besoin de l'UI. Donc je passe une instance de l'UI.
 
-
-def create_sqlite_db():
-    conn = sqlite3.connect("data/sqlite_db_file.db")
-    c = conn.cursor()
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS serveur_vmware(
-        serveur_name text,
-        dns_name text,
-        host_name text,
-        management_name text  
-    )
-    """)
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS serveur_opca(
-            serveur_name text,
-            dns_name text,
-            host_name text,
-            management_name text  
-        )
-        """)
-
-    # Ajouter des données
-    dictionnaire_1 = {"serveur_name_key": "VM_3", "dns_name_key": "VM_1.local", "host_name_key": "ESXi_1", "management_name_key": "vCenter_1"}
-    c.execute("INSERT INTO serveur_vmware VALUES (:serveur_name_key, :dns_name_key, :host_name_key, :management_name_key)", dictionnaire_1)
-
-    # Commiter les requêtes + fermer la bdd (toujours !)
-    conn.commit()
-    conn.close()
-
-
 class Tools(QtWidgets.QWidget):
     def __init__(self, window_instance):
         self.window_instance = window_instance
         super(Tools, self).__init__()
-
-        create_sqlite_db()
 
     def is_db_sqlite_empty(self):
         self.window_instance.textEdit.setText("Base de donnée vide ? Vérification en cours...")
@@ -106,9 +74,9 @@ class Tools(QtWidgets.QWidget):
             with DatabaseGestion.DatabaseGestion() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
                 if db_connection.error_db_connection is None:
                     if self.is_db_sqlite_empty():
-                        pass
+                        print("Il n'y a pas de données dans une des deux tables !")
                     else:
-                        print("Il y a des données !")
+                        print("Il y a des données dans les deux tables !")
 
                     if self.is_db_empty():
                         pass
