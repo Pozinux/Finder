@@ -1,6 +1,5 @@
-import os.path
-import re
 import configparser
+import re
 
 from PySide2 import QtWidgets
 
