@@ -17,26 +17,6 @@ class Tools(QtWidgets.QWidget):
         self.window_instance = window_instance
         super(Tools, self).__init__()
 
-    # def is_db_sqlite_empty(self):
-    #     self.window_instance.textEdit.setText("Base de donnée vide ? Vérification en cours...")
-    #     conn = sqlite3.connect("data/sqlite_db_file.db")
-    #     c = conn.cursor()
-    #     c.execute("SELECT * FROM serveur_vmware")
-    #     rows_vmware = c.fetchall()
-    #     if not rows_vmware:
-    #         print("Base VMware vide.")
-    #         return True
-    #     c.execute("SELECT * FROM serveur_opca")
-    #     rows_opca = c.fetchall()
-    #     if not rows_opca:
-    #         print("Base OPCA vide.")
-    #         conn.commit()
-    #         conn.close()
-    #         return True
-    #     conn.commit()
-    #     conn.close()
-    #     return False
-
     def is_db_empty(self):
         with DatabaseGestionSqlite.DatabaseGestionSqlite() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
             if db_connection.error_db_connection is None:
