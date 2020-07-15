@@ -33,6 +33,12 @@ def create_sqlite_db():
             management_name text  
         )
         """)
+
+    # Ajouter des données
+    dictionnaire_1 = {"serveur_name_key": "VM_3", "dns_name_key": "VM_1.local", "host_name_key": "ESXi_1", "management_name_key": "vCenter_1"}
+    c.execute("INSERT INTO serveur_vmware VALUES (:serveur_name_key, :dns_name_key, :host_name_key, :management_name_key)", dictionnaire_1)
+
+    # Commiter les requêtes + fermer la bdd (toujours !)
     conn.commit()
     conn.close()
 
