@@ -368,12 +368,12 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
                 main_window.textEdit.setText(f"Insertion des données de {export_type} dans la base...")
                 QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                 if export_type == "opca":
-                    db_connection.sql_query_executemany(f"INSERT INTO serveur_opca (serveur_name, dns_name, management_name, host_name) VALUES (%s,%s,%s,%s)", data_list)
+                    db_connection.sql_query_executemany(f"INSERT INTO serveur_opca (serveur_name, dns_name, management_name, host_name) VALUES (?,?,?,?)", data_list)
                 elif export_type == "vmware":
-                    db_connection.sql_query_executemany(f"INSERT INTO serveur_vmware (serveur_name, dns_name, management_name, host_name) VALUES (%s,%s,%s,%s)", data_list)
+                    db_connection.sql_query_executemany(f"INSERT INTO serveur_vmware (serveur_name, dns_name, management_name, host_name) VALUES (?,?,?,?)", data_list)
 
                 elif export_type == "cmdb":
-                    db_connection.sql_query_executemany(f"INSERT INTO serveur_cmdb (serveur_name, environment_name) VALUES (%s,%s)", list_data_cmdb)
+                    db_connection.sql_query_executemany(f"INSERT INTO serveur_cmdb (serveur_name, environment_name) VALUES (?,?)", list_data_cmdb)
 
                 if db_connection.error_db_execution is None:
                     main_window.textEdit.setText(f"La base de données {export_type} contient {str(db_connection.cursor.rowcount)} lignes.")
