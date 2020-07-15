@@ -85,14 +85,14 @@ class Tools(QtWidgets.QWidget):
                         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                         if not search_list:
                             db_connection.sql_query_execute(f"""
-                                                                    SELECT DISTINCT v.serveur_name, v.management_name, IF(v.dns_name is null, \'N/A\', v.dns_name), IF(c.environment_name is null, \'N/A\', c.environment_name) 
+                                                                    SELECT DISTINCT v.serveur_name, v.management_name, v.dns_name, c.environment_name
                                                                     FROM serveur_vmware as v 
                                                                     LEFT JOIN serveur_cmdb as c 
                                                                     ON(v.serveur_name = c.serveur_name)""")
 
                             rows_vmware = db_connection.cursor.fetchall()
 
-                            db_connection.sql_query_execute(f"""SELECT DISTINCT o.serveur_name, o.management_name, IF(o.dns_name is null, \'N/A\', o.dns_name), IF(c.environment_name is null, \'N/A\', c.environment_name) 
+                            db_connection.sql_query_execute(f"""SELECT DISTINCT o.serveur_name, o.management_name, o.dns_name, c.environment_name
                                                                     FROM serveur_opca as o 
                                                                     LEFT JOIN serveur_cmdb as c 
                                                                     ON(o.serveur_name = c.serveur_name)""")
@@ -114,7 +114,7 @@ class Tools(QtWidgets.QWidget):
                                 self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...")
 
                                 db_connection.sql_query_execute(f"""
-                                                                        SELECT DISTINCT v.serveur_name, v.management_name, IF(v.dns_name is null, \'N/A\', v.dns_name), IF(c.environment_name is null, \'N/A\', c.environment_name) 
+                                                                        SELECT DISTINCT v.serveur_name, v.management_name, v.dns_name, c.environment_name
                                                                         FROM serveur_vmware as v 
                                                                         LEFT JOIN serveur_cmdb as c 
                                                                         ON(v.serveur_name = c.serveur_name) 
@@ -123,7 +123,7 @@ class Tools(QtWidgets.QWidget):
 
                                 rows_vmware = db_connection.cursor.fetchall()
 
-                                db_connection.sql_query_execute(f"""SELECT DISTINCT o.serveur_name, o.management_name, IF(o.dns_name is null, \'N/A\', o.dns_name), IF(c.environment_name is null, \'N/A\', c.environment_name) 
+                                db_connection.sql_query_execute(f"""SELECT DISTINCT o.serveur_name, o.management_name, o.dns_name, c.environment_name
                                                                         FROM serveur_opca as o 
                                                                         LEFT JOIN serveur_cmdb as c 
                                                                         ON(o.serveur_name = c.serveur_name) 
@@ -369,7 +369,7 @@ class Tools(QtWidgets.QWidget):
                         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                         if not search_list:
                             db_connection.sql_query_execute(f"""
-                                                                    SELECT IF(c.environment_name is null, \'N/A\', c.environment_name), v.serveur_name
+                                                                    SELECT c.environment_name, v.serveur_name
                                                                     FROM serveur_vmware as v 
                                                                     LEFT JOIN serveur_cmdb as c 
                                                                     ON(v.serveur_name = c.serveur_name)""")
@@ -377,7 +377,7 @@ class Tools(QtWidgets.QWidget):
                             rows_vmware = db_connection.cursor.fetchall()
 
                             db_connection.sql_query_execute(f"""
-                                                                    SELECT IF(c.environment_name is null, \'N/A\', c.environment_name), o.serveur_name
+                                                                    SELECT c.environment_name, o.serveur_name
                                                                     FROM serveur_opca as o 
                                                                     LEFT JOIN serveur_cmdb as c 
                                                                     ON(o.serveur_name = c.serveur_name)""")
@@ -399,7 +399,7 @@ class Tools(QtWidgets.QWidget):
                                 self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...")
 
                                 db_connection.sql_query_execute(f"""
-                                                                        SELECT IF(c.environment_name is null, \'N/A\', c.environment_name), v.serveur_name
+                                                                        SELECT c.environment_name, v.serveur_name
                                                                         FROM serveur_vmware as v 
                                                                         LEFT JOIN serveur_cmdb as c 
                                                                         ON(v.serveur_name = c.serveur_name) 
@@ -408,7 +408,7 @@ class Tools(QtWidgets.QWidget):
                                 rows_vmware = db_connection.cursor.fetchall()
 
                                 db_connection.sql_query_execute(f"""
-                                                                        SELECT IF(c.environment_name is null, \'N/A\', c.environment_name), o.serveur_name
+                                                                        SELECT c.environment_name, o.serveur_name
                                                                         FROM serveur_opca as o 
                                                                         LEFT JOIN serveur_cmdb as c 
                                                                         ON(o.serveur_name = c.serveur_name) 
