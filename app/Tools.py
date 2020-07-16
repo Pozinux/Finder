@@ -119,6 +119,7 @@ class Tools(QtWidgets.QWidget):
                         nbr = 0  # To get number of results
                         list_result = []
                         list_result_saut = []
+
                     for nbr, result_query_search in enumerate(results_query_search, 1):
                         serveur_name, management_name, dns_name, environment_name = result_query_search  # unpacking
                         if management_name == 'Non présent dans les exports':
