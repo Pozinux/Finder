@@ -363,8 +363,6 @@ class Tools(QtWidgets.QWidget):
         return file_authorized
 
     def list_exports(self, export_type):
-        files_authorized_list = []
-        files_not_authorized_list = []
         # Check if there are any exports in the folder concerned
         if not os.listdir(fr"{constantes.EXPORTS_DIR}\exports_{export_type}"):
             self.window_instance.textEdit.setText(f"Le répertoire des exports exports_{export_type} est vide.")
@@ -376,6 +374,8 @@ class Tools(QtWidgets.QWidget):
                 for file in files:
                     files_paths_list.append(os.path.join(root, file))
             number_authorized = number_not_authorized = 0
+            files_authorized_list = []
+            files_not_authorized_list = []
             for file_path in files_paths_list:
                 file = os.path.basename(file_path)
                 file_is_authorized = self.is_file_authorized(file)
