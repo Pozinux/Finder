@@ -2,6 +2,6 @@ Finder 0.0.8-beta
 ------------------
 
 - Application : Python 3.7
-- Base de données : MySQL
-- Auteur : Timothé Poznanski
+- Base de donnï¿½es : SQlite
+- Auteur : Timothï¿½ Poznanski
 - Date : 2019
