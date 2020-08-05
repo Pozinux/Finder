@@ -2,10 +2,10 @@
 
 from PySide2 import QtWidgets
 
-import app.graphique.ImportListWindow
+import graphique.ImportListWindow
 
 
-class ImportList(QtWidgets.QWidget, app.graphique.ImportListWindow.Ui_ImportListWindow):
+class ImportList(QtWidgets.QWidget, graphique.ImportListWindow.Ui_ImportListWindow):
     def __init__(self, window_instance, tools_instance):
         """
         Classe qui affiche une fenêtre pour pouvoir y coller une liste à rechercher

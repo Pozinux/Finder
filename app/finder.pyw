@@ -9,10 +9,10 @@ import pandas
 from PySide2 import QtWidgets, QtGui, QtCore
 
 import constantes
-from app.DatabaseGestionSqlite import DatabaseGestionSqlite
-from app.ImportList import ImportList
-from app.Tools import Tools
-from app.graphique.MainWindow import Ui_MainWindow
+from DatabaseGestionSqlite import DatabaseGestionSqlite
+from ImportList import ImportList
+from Tools import Tools
+from graphique.MainWindow import Ui_MainWindow
 
 """ CONVENTIONS
 file_path = "D:\folder1\folder2\file.ext"
