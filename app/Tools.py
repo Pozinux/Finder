@@ -59,15 +59,26 @@ class Tools(QtWidgets.QWidget):
                         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                         if not search_list:
                             db_connection.sql_query_execute(f"""
-                                SELECT DISTINCT v.serveur_name, v.management_name, v.dns_name, c.environment_name
-                                FROM serveur_vmware as v 
-                                LEFT JOIN serveur_cmdb as c 
-                                ON(v.serveur_name = c.serveur_name)""")
+                                SELECT DISTINCT 
+                                v.serveur_name, 
+                                v.management_name, 
+                                CASE WHEN v.dns_name IS NULL THEN \'N/A\' ELSE v.dns_name END,  
+                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END                             
+                                FROM serveur_vmware AS v
+                                LEFT JOIN serveur_cmdb AS c 
+                                ON v.serveur_name = c.serveur_name COLLATE NOCASE
+                                """)
                             rows_vmware = db_connection.cursor.fetchall()
-                            db_connection.sql_query_execute(f"""SELECT DISTINCT o.serveur_name, o.management_name, o.dns_name, c.environment_name
-                                FROM serveur_opca as o 
-                                LEFT JOIN serveur_cmdb as c 
-                                ON(o.serveur_name = c.serveur_name)""")
+                            db_connection.sql_query_execute(f"""
+                                SELECT DISTINCT 
+                                o.serveur_name, 
+                                o.management_name, 
+                                CASE WHEN o.dns_name IS NULL THEN \'N/A\' ELSE o.dns_name END,
+                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END                                 
+                                FROM serveur_opca AS o
+                                LEFT JOIN serveur_cmdb AS c 
+                                ON o.serveur_name = c.serveur_name COLLATE NOCASE
+                                """)
                             rows_opca = db_connection.cursor.fetchall()
                             results_query_search.extend(rows_vmware)
                             results_query_search.extend(rows_opca)
@@ -79,21 +90,32 @@ class Tools(QtWidgets.QWidget):
                             # For each search string in list
                             for file_number_search, search_string in enumerate(search_list, 1):
                                 search_string = str.strip(search_string)  # delete spaces before and after the
-                                self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...")
+                                self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...") 
                                 db_connection.sql_query_execute(f"""
-                                    SELECT DISTINCT v.serveur_name, v.management_name, v.dns_name, c.environment_name
-                                    FROM serveur_vmware as v 
-                                    LEFT JOIN serveur_cmdb as c 
-                                    ON(v.serveur_name = c.serveur_name) 
-                                    WHERE v.dns_name LIKE \'%{search_string}%\'
-                                    OR v.serveur_name LIKE \'%{search_string}%\'""")
+                                SELECT DISTINCT 
+                                v.serveur_name, 
+                                v.management_name, 
+                                CASE WHEN v.dns_name IS NULL THEN \'N/A\' ELSE v.dns_name END,  
+                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END                             
+                                FROM serveur_vmware AS v
+                                LEFT JOIN serveur_cmdb AS c 
+                                ON v.serveur_name = c.serveur_name COLLATE NOCASE 
+                                WHERE v.dns_name LIKE \'%{search_string}%\'
+                                OR v.serveur_name LIKE \'%{search_string}%\'
+                                """)
                                 rows_vmware = db_connection.cursor.fetchall()
-                                db_connection.sql_query_execute(f"""SELECT DISTINCT o.serveur_name, o.management_name, o.dns_name, c.environment_name
-                                    FROM serveur_opca as o 
-                                    LEFT JOIN serveur_cmdb as c 
-                                    ON(o.serveur_name = c.serveur_name) 
-                                    WHERE o.dns_name LIKE \'%{search_string}%\'
-                                    OR o.serveur_name LIKE \'%{search_string}%\'""")
+                                db_connection.sql_query_execute(f"""
+                                SELECT DISTINCT 
+                                o.serveur_name, 
+                                o.management_name, 
+                                CASE WHEN o.dns_name IS NULL THEN \'N/A\' ELSE o.dns_name END,
+                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END                                 
+                                FROM serveur_opca AS o
+                                LEFT JOIN serveur_cmdb AS c 
+                                ON o.serveur_name = c.serveur_name COLLATE NOCASE 
+                                WHERE o.dns_name LIKE \'%{search_string}%\'
+                                OR o.serveur_name LIKE \'%{search_string}%\'
+                                """)
                                 rows_opca = db_connection.cursor.fetchall()
                                 if not rows_opca and not rows_vmware:
                                     nbr_result_ko += 1
@@ -121,6 +143,7 @@ class Tools(QtWidgets.QWidget):
                         list_result_saut = []
 
                     for nbr, result_query_search in enumerate(results_query_search, 1):
+                        #print(result_query_search)
                         serveur_name, management_name, dns_name, environment_name = result_query_search  # unpacking
                         if management_name == 'Non présent dans les exports':
                             list_result.append(f"{serveur_name} --> {red_text}{management_name}{text_end} --> {dns_name} --> {environment_name}")
@@ -163,9 +186,19 @@ class Tools(QtWidgets.QWidget):
                         self.window_instance.textEdit.setText("Recherche en cours...")
                         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                         if not search_list:
-                            db_connection.sql_query_execute(f'SELECT host_name, management_name FROM serveur_vmware')
+                            db_connection.sql_query_execute(f'''
+                            SELECT 
+                            host_name, 
+                            management_name 
+                            FROM serveur_vmware
+                            ''')
                             rows_vmware = db_connection.cursor.fetchall()
-                            db_connection.sql_query_execute(f'SELECT host_name, management_name FROM serveur_opca')
+                            db_connection.sql_query_execute(f'''
+                            SELECT 
+                            host_name, 
+                            management_name 
+                            FROM serveur_opca
+                            ''')
                             rows_opca = db_connection.cursor.fetchall()
                             results_query_search.extend(rows_vmware)
                             results_query_search.extend(rows_opca)
@@ -178,9 +211,22 @@ class Tools(QtWidgets.QWidget):
                             for file_number_search, search_string in enumerate(search_list, 1):
                                 search_string = str.strip(search_string)  # delete spaces before and after the
                                 self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...")
-                                db_connection.sql_query_execute(f'SELECT host_name, management_name FROM serveur_vmware WHERE host_name LIKE \'%{search_string}%\'')
+                                db_connection.sql_query_execute(f'''
+                                SELECT 
+                                host_name, 
+                                management_name 
+                                FROM serveur_vmware 
+                                WHERE host_name LIKE \'%{search_string}%\'
+                                ''')
                                 rows_vmware = db_connection.cursor.fetchall()
-                                db_connection.sql_query_execute(f'SELECT host_name, management_name FROM serveur_opca WHERE host_name LIKE \'%{search_string}%\'')
+                                db_connection.sql_query_execute(f'''
+                                SELECT 
+                                host_name, 
+                                management_name 
+                                FROM serveur_opca 
+                                WHERE host_name 
+                                LIKE \'%{search_string}%\'
+                                ''')
                                 rows_opca = db_connection.cursor.fetchall()
                                 if not rows_opca and not rows_vmware:
                                     results_query_search.append((search_string, 'Non présent dans les exports'))
@@ -248,16 +294,22 @@ class Tools(QtWidgets.QWidget):
                         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                         if not search_list:
                             db_connection.sql_query_execute(f"""
-                                SELECT c.environment_name, v.serveur_name
-                                FROM serveur_vmware as v 
-                                LEFT JOIN serveur_cmdb as c 
-                                ON(v.serveur_name = c.serveur_name)""")
+                            SELECT 
+                            CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END,
+                            v.serveur_name
+                            FROM serveur_vmware as v
+                            LEFT JOIN serveur_cmdb as c
+                            ON v.serveur_name = c.serveur_name COLLATE NOCASE
+                            """)
                             rows_vmware = db_connection.cursor.fetchall()
                             db_connection.sql_query_execute(f"""
-                                SELECT c.environment_name, o.serveur_name
-                                FROM serveur_opca as o 
-                                LEFT JOIN serveur_cmdb as c 
-                                ON(o.serveur_name = c.serveur_name)""")
+                            SELECT 
+                            CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END,
+                            o.serveur_name
+                            FROM serveur_opca as o
+                            LEFT JOIN serveur_cmdb as c
+                            ON o.serveur_name = c.serveur_name COLLATE NOCASE
+                            """)
                             rows_opca = db_connection.cursor.fetchall()
                             results_query_search.extend(rows_vmware)
                             results_query_search.extend(rows_opca)
@@ -271,18 +323,24 @@ class Tools(QtWidgets.QWidget):
                                 search_string = str.strip(search_string)  # delete spaces before and after the
                                 self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...")
                                 db_connection.sql_query_execute(f"""
-                                    SELECT c.environment_name, v.serveur_name
-                                    FROM serveur_vmware as v 
-                                    LEFT JOIN serveur_cmdb as c 
-                                    ON(v.serveur_name = c.serveur_name) 
-                                    WHERE c.environment_name LIKE \'%{search_string}%\'""")
+                                SELECT 
+                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END,
+                                v.serveur_name
+                                FROM serveur_vmware as v
+                                LEFT JOIN serveur_cmdb as c
+                                ON v.serveur_name = c.serveur_name COLLATE NOCASE 
+                                WHERE c.environment_name LIKE \'%{search_string}%\'
+                                """)
                                 rows_vmware = db_connection.cursor.fetchall()
                                 db_connection.sql_query_execute(f"""
-                                    SELECT c.environment_name, o.serveur_name
-                                    FROM serveur_opca as o 
-                                    LEFT JOIN serveur_cmdb as c 
-                                    ON(o.serveur_name = c.serveur_name) 
-                                    WHERE c.environment_name LIKE \'%{search_string}%\'""")
+                                SELECT 
+                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END,
+                                o.serveur_name
+                                FROM serveur_opca as o
+                                LEFT JOIN serveur_cmdb as c
+                                ON o.serveur_name = c.serveur_name COLLATE NOCASE 
+                                WHERE c.environment_name LIKE \'%{search_string}%\'
+                                """)
                                 rows_opca = db_connection.cursor.fetchall()
                                 if not rows_opca and not rows_vmware:
                                     nbr_result_ko += 1
