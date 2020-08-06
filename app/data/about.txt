@@ -1,4 +1,4 @@
-Finder 0.0.9-beta
+Finder 0.0.9-dev
 ------------------
 
 - Application : Python 3.7
