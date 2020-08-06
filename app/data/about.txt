@@ -1,7 +1,7 @@
-Finder 0.0.8-beta
+Finder 0.0.9-beta
 ------------------
 
 - Application : Python 3.7
-- Base de donn�es : SQlite
-- Auteur : Timoth� Poznanski
+- Base de donnees : SQlite
+- Auteur : Timothe Poznanski
 - Date : 2019
