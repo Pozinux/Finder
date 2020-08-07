@@ -147,7 +147,7 @@ class Tools(QtWidgets.QWidget):
                         list_result_saut = []
 
                     for nbr, result_query_search in enumerate(results_query_search, 1):
-                        #print(result_query_search)
+                        #  print(result_query_search)
                         serveur_name, management_name, dns_name, environment_name, device_type = result_query_search  # unpacking
                         if management_name == 'Non présent dans les exports':
                             list_result.append(f"{serveur_name} --> {red_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type}")
