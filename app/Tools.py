@@ -63,7 +63,8 @@ class Tools(QtWidgets.QWidget):
                                 v.serveur_name, 
                                 v.management_name, 
                                 CASE WHEN v.dns_name IS NULL THEN \'N/A\' ELSE v.dns_name END,  
-                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END                             
+                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END,
+                                CASE WHEN c.device_type IS NULL THEN \'N/A\' ELSE c.device_type END   
                                 FROM serveur_vmware AS v
                                 LEFT JOIN serveur_cmdb AS c 
                                 ON v.serveur_name = c.serveur_name COLLATE NOCASE
@@ -74,7 +75,8 @@ class Tools(QtWidgets.QWidget):
                                 o.serveur_name, 
                                 o.management_name, 
                                 CASE WHEN o.dns_name IS NULL THEN \'N/A\' ELSE o.dns_name END,
-                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END                                 
+                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END,
+                                CASE WHEN c.device_type IS NULL THEN \'N/A\' ELSE c.device_type END 
                                 FROM serveur_opca AS o
                                 LEFT JOIN serveur_cmdb AS c 
                                 ON o.serveur_name = c.serveur_name COLLATE NOCASE
@@ -96,7 +98,8 @@ class Tools(QtWidgets.QWidget):
                                 v.serveur_name, 
                                 v.management_name, 
                                 CASE WHEN v.dns_name IS NULL THEN \'N/A\' ELSE v.dns_name END,  
-                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END                             
+                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END,
+                                CASE WHEN c.device_type IS NULL THEN \'N/A\' ELSE c.device_type END   
                                 FROM serveur_vmware AS v
                                 LEFT JOIN serveur_cmdb AS c 
                                 ON v.serveur_name = c.serveur_name COLLATE NOCASE 
@@ -109,7 +112,8 @@ class Tools(QtWidgets.QWidget):
                                 o.serveur_name, 
                                 o.management_name, 
                                 CASE WHEN o.dns_name IS NULL THEN \'N/A\' ELSE o.dns_name END,
-                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END                                 
+                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END,
+                                CASE WHEN c.device_type IS NULL THEN \'N/A\' ELSE c.device_type END 
                                 FROM serveur_opca AS o
                                 LEFT JOIN serveur_cmdb AS c 
                                 ON o.serveur_name = c.serveur_name COLLATE NOCASE 
@@ -119,7 +123,7 @@ class Tools(QtWidgets.QWidget):
                                 rows_opca = db_connection.cursor.fetchall()
                                 if not rows_opca and not rows_vmware:
                                     nbr_result_ko += 1
-                                    results_query_search.append((search_string, 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports'))
+                                    results_query_search.append((search_string, 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports'))
                                 if rows_vmware:
                                     nbr_item_in_list = len(rows_vmware)
                                     results_query_search.extend(rows_vmware)
@@ -144,17 +148,17 @@ class Tools(QtWidgets.QWidget):
 
                     for nbr, result_query_search in enumerate(results_query_search, 1):
                         #print(result_query_search)
-                        serveur_name, management_name, dns_name, environment_name = result_query_search  # unpacking
+                        serveur_name, management_name, dns_name, environment_name, device_type = result_query_search  # unpacking
                         if management_name == 'Non présent dans les exports':
-                            list_result.append(f"{serveur_name} --> {red_text}{management_name}{text_end} --> {dns_name} --> {environment_name}")
+                            list_result.append(f"{serveur_name} --> {red_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type}")
                         else:
-                            list_result.append(f"{serveur_name} --> {green_text}{management_name}{text_end} --> {dns_name} --> {environment_name}")
+                            list_result.append(f"{serveur_name} --> {green_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type}")
                         list_result_saut = "<br>".join(list_result)
                     # Display result in text edit
                     self.window_instance.textEdit.setText(list_result_saut)
                     # Display data results in tableview
                     # header table view
-                    header = ['Nom du serveur', 'vCenter ou ESXi (vmware), Management Node (opca)', 'Nom DNS (vmware)', 'Environnement/Application']
+                    header = ['Nom du serveur', 'vCenter ou ESXi (vmware), Management Node (opca)', 'Nom DNS (vmware)', 'Environnement/Application', 'Type']
                     # Create instance table view
                     table_model = MyTableModel.MyTableModel(results_query_search, header)
                     self.window_instance.tableView.setModel(table_model)

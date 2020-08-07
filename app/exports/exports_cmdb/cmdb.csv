@@ -1,3 +1,3 @@
-ci6_name,ci2_name
-VM_OPCA_1,Prod-appli1
-VM_VMWARE_2,Dev-appli3
+ci6_name,ci2_name,ci6_u_device_type
+VM_OPCA_1,Prod-appli1,Physique
+VM_VMWARE_2,Dev-appli3,Virtuel
