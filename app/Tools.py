@@ -90,31 +90,28 @@ class Tools(QtWidgets.QWidget):
                                 search_string = str.strip(search_string)  # delete spaces before and after the
                                 self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...") 
                                 db_connection.sql_query_execute(f"""
-                                SELECT DISTINCT 
-                                v.serveur_name, 
-                                v.management_name, 
-                                CASE WHEN v.dns_name IS NULL THEN \'N/A\' ELSE v.dns_name END,  
-                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END,
-                                CASE WHEN c.device_type IS NULL THEN \'N/A\' ELSE c.device_type END   
-                                FROM serveur_vmware AS v
-                                LEFT JOIN serveur_cmdb AS c 
-                                ON v.serveur_name = c.serveur_name COLLATE NOCASE 
-                                WHERE v.dns_name LIKE \'%{search_string}%\'
-                                OR v.serveur_name LIKE \'%{search_string}%\'
+                                select t.serveur_name,
+                                           coalesce(v.management_name, o.management_name) management_name,
+                                           coalesce(v.dns_name, o.dns_name) dns_name,
+                                           c.environment_name,
+                                           c.device_type
+                                    from (
+                                      select serveur_name from serveur_cmdb union
+                                      select serveur_name from serveur_vmware union
+                                      select serveur_name from serveur_opca
+                                    ) t
+                                    left join serveur_cmdb c on c.serveur_name = t.serveur_name
+                                    left join serveur_vmware v on v.serveur_name = t.serveur_name
+                                    left join serveur_opca o on o.serveur_name = t.serveur_name 
+                                WHERE v.dns_name LIKE \'%{search_string}%\' 
+                                    OR v.serveur_name LIKE \'%{search_string}%\'
+                                    OR o.dns_name LIKE \'%{search_string}%\' 
+                                    OR o.serveur_name LIKE \'%{search_string}%\'
+                                    OR c.serveur_name LIKE \'%{search_string}%\'
                                 """)
                                 rows_vmware = db_connection.cursor.fetchall()
                                 db_connection.sql_query_execute(f"""
-                                SELECT DISTINCT 
-                                o.serveur_name, 
-                                o.management_name, 
-                                CASE WHEN o.dns_name IS NULL THEN \'N/A\' ELSE o.dns_name END,
-                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END,
-                                CASE WHEN c.device_type IS NULL THEN \'N/A\' ELSE c.device_type END 
-                                FROM serveur_opca AS o
-                                LEFT JOIN serveur_cmdb AS c 
-                                ON o.serveur_name = c.serveur_name COLLATE NOCASE 
-                                WHERE o.dns_name LIKE \'%{search_string}%\'
-                                OR o.serveur_name LIKE \'%{search_string}%\'
+                                
                                 """)
                                 rows_opca = db_connection.cursor.fetchall()
                                 if not rows_opca and not rows_vmware:
