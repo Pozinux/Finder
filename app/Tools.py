@@ -319,23 +319,21 @@ class Tools(QtWidgets.QWidget):
                                 search_string = str.strip(search_string)  # delete spaces before and after the
                                 self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...")
                                 db_connection.sql_query_execute(f"""
-                                SELECT 
-                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END,
-                                v.serveur_name
-                                FROM serveur_vmware as v
-                                LEFT JOIN serveur_cmdb as c
-                                ON v.serveur_name = c.serveur_name COLLATE NOCASE 
-                                WHERE c.environment_name LIKE \'%{search_string}%\'
+                                    select c.environment_name,
+                                           t.serveur_name
+                                    from (
+                                      select serveur_name from serveur_cmdb union
+                                      select serveur_name from serveur_vmware union
+                                      select serveur_name from serveur_opca
+                                    ) t
+                                    left join serveur_cmdb c on c.serveur_name = t.serveur_name
+                                    left join serveur_vmware v on v.serveur_name = t.serveur_name
+                                    left join serveur_opca o on o.serveur_name = t.serveur_name 
+                                    WHERE c.environment_name LIKE \'%{search_string}%\'
                                 """)
                                 rows_vmware = db_connection.cursor.fetchall()
                                 db_connection.sql_query_execute(f"""
-                                SELECT 
-                                CASE WHEN c.environment_name IS NULL THEN \'N/A\' ELSE c.environment_name END,
-                                o.serveur_name
-                                FROM serveur_opca as o
-                                LEFT JOIN serveur_cmdb as c
-                                ON o.serveur_name = c.serveur_name COLLATE NOCASE 
-                                WHERE c.environment_name LIKE \'%{search_string}%\'
+                                
                                 """)
                                 rows_opca = db_connection.cursor.fetchall()
                                 if not rows_opca and not rows_vmware:
