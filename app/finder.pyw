@@ -351,7 +351,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
 
                     df_cmdb = pandas.read_csv(file_path_authorized, sep=',', encoding="Windows-1252")
                     # The dataframe will contains only these colums
-                    df_cmdb = df_cmdb[["ci6_name", "ci2_name", "ci6_u_device_type"]]
+                    df_cmdb = df_cmdb[["ci6_name", "ci2_name", "ci6_u_device_type", "ci6_operational_status", "ci6_sys_class_name"]]
 
                 list_data_cmdb_temp = df_cmdb.values.tolist()
                 # print(list_data_cmdb_temp)
@@ -373,7 +373,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
                     db_connection.sql_query_executemany(f"INSERT INTO serveur_vmware (serveur_name, dns_name, management_name, host_name) VALUES (?,?,?,?)", data_list)
 
                 elif export_type == "cmdb":
-                    db_connection.sql_query_executemany(f"INSERT INTO serveur_cmdb (serveur_name, environment_name, device_type) VALUES (?,?,?)", list_data_cmdb)
+                    db_connection.sql_query_executemany(f"INSERT INTO serveur_cmdb (serveur_name, environment_name, device_type, operational_status, system_type) VALUES (?,?,?,?,?)", list_data_cmdb)
 
                 if db_connection.error_db_execution is None:
                     main_window.textEdit.setText(f"La base de données {export_type} contient {str(db_connection.cursor.rowcount)} lignes.")

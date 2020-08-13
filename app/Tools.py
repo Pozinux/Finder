@@ -63,7 +63,9 @@ class Tools(QtWidgets.QWidget):
                                            coalesce(v.management_name, o.management_name) management_name,
                                            coalesce(v.dns_name, o.dns_name) dns_name,
                                            c.environment_name,
-                                           c.device_type
+                                           c.device_type,
+                                           c.operational_status,
+                                           c.system_type
                                     from (
                                       select serveur_name from serveur_cmdb union
                                       select serveur_name from serveur_vmware union
@@ -88,7 +90,9 @@ class Tools(QtWidgets.QWidget):
                                            coalesce(v.management_name, o.management_name) management_name,
                                            coalesce(v.dns_name, o.dns_name) dns_name,
                                            c.environment_name,
-                                           c.device_type
+                                           c.device_type,
+                                           c.operational_status,
+                                           c.system_type
                                     from (
                                       select serveur_name from serveur_cmdb union
                                       select serveur_name from serveur_vmware union
@@ -106,7 +110,7 @@ class Tools(QtWidgets.QWidget):
                                 rows_result_sql = db_connection.cursor.fetchall()
                                 if not rows_result_sql:
                                     nbr_result_ko += 1
-                                    results_query_search.append((search_string, 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports'))
+                                    results_query_search.append((search_string, 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports'))
                                 if rows_result_sql:
                                     nbr_item_in_list = len(rows_result_sql)
                                     results_query_search.extend(rows_result_sql)
@@ -127,17 +131,17 @@ class Tools(QtWidgets.QWidget):
 
                     for nbr, result_query_search in enumerate(results_query_search, 1):
                         #  print(result_query_search)
-                        serveur_name, management_name, dns_name, environment_name, device_type = result_query_search  # unpacking
+                        serveur_name, management_name, dns_name, environment_name, device_type, operational_status, system_type = result_query_search  # unpacking
                         if management_name == 'Non présent dans les exports':
-                            list_result.append(f"{serveur_name} --> {red_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type}")
+                            list_result.append(f"{serveur_name} --> {red_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type} --> {operational_status} --> {system_type}")
                         else:
-                            list_result.append(f"{serveur_name} --> {green_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type}")
+                            list_result.append(f"{serveur_name} --> {green_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type} --> {operational_status} --> {system_type}")
                         list_result_saut = "<br>".join(list_result)
                     # Display result in text edit
                     self.window_instance.textEdit.setText(list_result_saut)
                     # Display data results in tableview
                     # header table view
-                    header = ['Nom du serveur', 'vCenter ou ESXi (vmware), Management Node (opca)', 'Nom DNS (vmware)', 'Environnement/Application', 'Type']
+                    header = ['Nom du serveur', 'vCenter ou ESXi (vmware), Management Node (opca)', 'Nom DNS (vmware)', 'Environnement/Application', 'Type', 'Status opérationnel', 'Type de Système (CMDB)']
                     # Create instance table view
                     table_model = MyTableModel.MyTableModel(results_query_search, header)
                     self.window_instance.tableView.setModel(table_model)
