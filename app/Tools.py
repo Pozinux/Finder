@@ -141,7 +141,7 @@ class Tools(QtWidgets.QWidget):
                     self.window_instance.textEdit.setText(list_result_saut)
                     # Display data results in tableview
                     # header table view
-                    header = ['Nom du serveur', 'vCenter ou ESXi (vmware), Management Node (opca)', 'Nom DNS (vmware)', 'Environnement/Application', 'Type', 'Status opérationnel', 'Type de Système (CMDB)']
+                    header = ['Nom', 'vCenter ou ESXi (vmware), Management Node (opca)', 'Nom DNS (vmware)', 'Environnement/Application (CMDB)', 'Type (CMDB)', 'Status opérationnel (CMDB)', 'Type de Système (CMDB)']
                     # Create instance table view
                     table_model = MyTableModel.MyTableModel(results_query_search, header)
                     self.window_instance.tableView.setModel(table_model)
@@ -348,7 +348,7 @@ class Tools(QtWidgets.QWidget):
                         self.window_instance.textEdit.setText(list_result_saut)
                         # Display data results in tableview
                         # header table view
-                        header = ['Application', 'Nom du serveur']
+                        header = ['Application (CMDB)', 'Nom']
                         # Create instance table view
                         table_model = MyTableModel.MyTableModel(results_query_search, header)
                         self.window_instance.tableView.setModel(table_model)
