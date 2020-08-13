@@ -73,13 +73,7 @@ class Tools(QtWidgets.QWidget):
                                     left join serveur_vmware v on v.serveur_name = t.serveur_name
                                     left join serveur_opca o on o.serveur_name = t.serveur_name
                                 """)
-                            rows_vmware = db_connection.cursor.fetchall()
-                            db_connection.sql_query_execute(f"""
-                                
-                                """)
-                            rows_opca = db_connection.cursor.fetchall()
-                            results_query_search.extend(rows_vmware)
-                            results_query_search.extend(rows_opca)
+                            results_query_search = db_connection.cursor.fetchall()
                         else:  # if search is not empty
                             search_list_len = len(search_list)
                             step_search = 0
@@ -109,21 +103,13 @@ class Tools(QtWidgets.QWidget):
                                     OR o.serveur_name LIKE \'%{search_string}%\'
                                     OR c.serveur_name LIKE \'%{search_string}%\'
                                 """)
-                                rows_vmware = db_connection.cursor.fetchall()
-                                db_connection.sql_query_execute(f"""
-                                
-                                """)
-                                rows_opca = db_connection.cursor.fetchall()
-                                if not rows_opca and not rows_vmware:
+                                rows_result_sql = db_connection.cursor.fetchall()
+                                if not rows_result_sql:
                                     nbr_result_ko += 1
                                     results_query_search.append((search_string, 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports'))
-                                if rows_vmware:
-                                    nbr_item_in_list = len(rows_vmware)
-                                    results_query_search.extend(rows_vmware)
-                                    nbr_result_ok = nbr_result_ok + nbr_item_in_list
-                                if rows_opca:
-                                    nbr_item_in_list = len(rows_opca)
-                                    results_query_search.extend(rows_opca)
+                                if rows_result_sql:
+                                    nbr_item_in_list = len(rows_result_sql)
+                                    results_query_search.extend(rows_result_sql)
                                     nbr_result_ok = nbr_result_ok + nbr_item_in_list
                                 if search_list_len > 1:  # To avoid having the progress bar when doing a search on only one item to not waste time
                                     # Update of the progress bar
@@ -184,17 +170,17 @@ class Tools(QtWidgets.QWidget):
                         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                         if not search_list:
                             db_connection.sql_query_execute(f'''
-                            SELECT 
-                            host_name, 
-                            management_name 
-                            FROM serveur_vmware
+                                SELECT 
+                                host_name, 
+                                management_name 
+                                FROM serveur_vmware
                             ''')
                             rows_vmware = db_connection.cursor.fetchall()
                             db_connection.sql_query_execute(f'''
-                            SELECT 
-                            host_name, 
-                            management_name 
-                            FROM serveur_opca
+                                SELECT 
+                                host_name, 
+                                management_name 
+                                FROM serveur_opca
                             ''')
                             rows_opca = db_connection.cursor.fetchall()
                             results_query_search.extend(rows_vmware)
@@ -209,20 +195,20 @@ class Tools(QtWidgets.QWidget):
                                 search_string = str.strip(search_string)  # delete spaces before and after the
                                 self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...")
                                 db_connection.sql_query_execute(f'''
-                                SELECT 
-                                host_name, 
-                                management_name 
-                                FROM serveur_vmware 
-                                WHERE host_name LIKE \'%{search_string}%\'
+                                    SELECT 
+                                    host_name, 
+                                    management_name 
+                                    FROM serveur_vmware 
+                                    WHERE host_name LIKE \'%{search_string}%\'
                                 ''')
                                 rows_vmware = db_connection.cursor.fetchall()
                                 db_connection.sql_query_execute(f'''
-                                SELECT 
-                                host_name, 
-                                management_name 
-                                FROM serveur_opca 
-                                WHERE host_name 
-                                LIKE \'%{search_string}%\'
+                                    SELECT 
+                                    host_name, 
+                                    management_name 
+                                    FROM serveur_opca 
+                                    WHERE host_name 
+                                    LIKE \'%{search_string}%\'
                                 ''')
                                 rows_opca = db_connection.cursor.fetchall()
                                 if not rows_opca and not rows_vmware:
@@ -302,13 +288,7 @@ class Tools(QtWidgets.QWidget):
                                 left join serveur_vmware v on v.serveur_name = t.serveur_name
                                 left join serveur_opca o on o.serveur_name = t.serveur_name
                             """)
-                            rows_vmware = db_connection.cursor.fetchall()
-                            db_connection.sql_query_execute(f"""
-                             
-                            """)
-                            rows_opca = db_connection.cursor.fetchall()
-                            results_query_search.extend(rows_vmware)
-                            results_query_search.extend(rows_opca)
+                            results_query_search = db_connection.cursor.fetchall()
                         else:  # if search is not empty
                             search_list_len = len(search_list)
                             step_search = 0
@@ -331,21 +311,13 @@ class Tools(QtWidgets.QWidget):
                                     left join serveur_opca o on o.serveur_name = t.serveur_name 
                                     WHERE c.environment_name LIKE \'%{search_string}%\'
                                 """)
-                                rows_vmware = db_connection.cursor.fetchall()
-                                db_connection.sql_query_execute(f"""
-                                
-                                """)
-                                rows_opca = db_connection.cursor.fetchall()
-                                if not rows_opca and not rows_vmware:
+                                rows_result_sql = db_connection.cursor.fetchall()
+                                if not rows_result_sql:
                                     nbr_result_ko += 1
                                     results_query_search.append((search_string, 'Non présent dans les exports'))
-                                if rows_vmware:
-                                    nbr_item_in_list = len(rows_vmware)
-                                    results_query_search.extend(rows_vmware)
-                                    nbr_result_ok = nbr_result_ok + nbr_item_in_list
-                                if rows_opca:
-                                    nbr_item_in_list = len(rows_opca)
-                                    results_query_search.extend(rows_opca)
+                                if rows_result_sql:
+                                    nbr_item_in_list = len(rows_result_sql)
+                                    results_query_search.extend(rows_result_sql)
                                     nbr_result_ok = nbr_result_ok + nbr_item_in_list
                                 if search_list_len > 1:  # To avoid having the progress bar when doing a search on only one item to not waste time
                                     # Update of the progress bar
