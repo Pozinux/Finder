@@ -50,7 +50,7 @@ class Tools(QtWidgets.QWidget):
 
         with DatabaseGestionSqlite.DatabaseGestionSqlite() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
             if db_connection.error_db_connection is None:
-                if search_choice == 'Serveur':
+                if search_choice == 'Equipement':
                     if self.is_db_empty():
                         pass
                     else:
@@ -165,7 +165,7 @@ class Tools(QtWidgets.QWidget):
                     self.window_instance.statusBar.showMessage(f"Résultats : {str(nbr)} | OK : {str(nbr_result_ok)} | KO : {str(nbr_result_ko)}")
                     self.window_instance.progressBar.reset()
                     # self.window_instance.progressBar.hide()
-                elif search_choice == 'Host':
+                elif search_choice == 'Host (ESXi ou CN)':
                     if self.is_db_empty():
                         pass
                     else:
