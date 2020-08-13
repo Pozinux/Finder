@@ -262,7 +262,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton.setIcon(search_icon)
         self.pushButton_2.setIcon(list_icon)
         # ComboBox = drop-down menu
-        self.comboBox.addItems(["Objet", "Host", "Application"])
+        self.comboBox.addItems(["Equipement", "Host", "Application"])
 
     def update_db(self, export_type):
         """ Updates the bdd according to the files in the export folder.
