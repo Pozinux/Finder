@@ -34,11 +34,13 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.authorized_files_opca_source_list = []
         self.authorized_files_cmdb_source_list = []
         self.authorized_files_vmware_source_list = []
+        self.authorized_files_cmdb_all_source_list = []
         self.files_renamed = []
         self.files_not_renamed = []
         self.result_folder_vmware = ""
         self.result_folder_opca = ""
         self.result_folder_cmdb = ""
+        self.result_folder_cmdb_all = ""
         self.exports_folders_dates = ""
 
         # Initialiser l'interface graphique
@@ -60,10 +62,12 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         pathlib.Path(constantes.EXPORTS_OPCA_DIR).mkdir(parents=True, exist_ok=True)  # Creating the opca export folder if it does not already exist
         pathlib.Path(constantes.EXPORTS_VMWARE_DIR).mkdir(parents=True, exist_ok=True)  # Creating the rvtools export folder if it does not already exist
         pathlib.Path(constantes.EXPORTS_CMDB_DIR).mkdir(parents=True, exist_ok=True)  # Creating the cmdb export folder if it does not already exist
+        pathlib.Path(constantes.EXPORTS_CMDB_ALL_DIR).mkdir(parents=True, exist_ok=True)  # Creating the cmdb_all export folder if it does not already exist
 
         self.get_export_folder_date("vmware")  # Récupérer et afficher la date du répertoire d'exports vmware
         self.get_export_folder_date("opca")  # Récupérer et afficher la date du répertoire d'exports opca
         self.get_export_folder_date("cmdb")  # Récupérer et afficher la date du répertoire d'exports cmdb
+        self.get_export_folder_date("cmdb_all")  # Récupérer et afficher la date du répertoire d'exports cmdb_all
         self.display_exports_folders_dates()
 
         self.list_authorized_files()  # Génére la liste des fichiers authorisés à l'ouverture de l'appli afin de pouvoir lister les exports (dans paramètres)
@@ -88,18 +92,23 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Menu fichier > Refesh BDD VMware
         refresh_bdd_vmware = QtWidgets.QAction(QtGui.QIcon('icons/refresh.png'), '&Mise à jour VMware', self)
-        refresh_bdd_vmware.setStatusTip("Update the database from the RVTools that are present the exports folder")
+        refresh_bdd_vmware.setStatusTip("Update the database from the RVTools that are present in the exports folder")
         refresh_bdd_vmware.triggered.connect(lambda: self.update_db("vmware"))
 
         # Menu fichier > Refesh BDD OPCA
         refresh_bdd_opca = QtWidgets.QAction(QtGui.QIcon('icons/refresh.png'), '&Mise à jour OPCA', self)
-        refresh_bdd_opca.setStatusTip("Update the database from the OPCA exports that are present the exports folder")
+        refresh_bdd_opca.setStatusTip("Update the database from the OPCA exports that are present in the exports folder")
         refresh_bdd_opca.triggered.connect(lambda: self.update_db("opca"))
 
         # Menu fichier > Refesh BDD CMDB
-        refresh_bdd_cmdb = QtWidgets.QAction(QtGui.QIcon('icons/refresh.png'), '&Mise à jour CMDB', self)
-        refresh_bdd_cmdb.setStatusTip("Update the database from the CMDB exports that are present the exports folder")
+        refresh_bdd_cmdb = QtWidgets.QAction(QtGui.QIcon('icons/refresh.png'), '&Mise à jour CMDB APPLI', self)
+        refresh_bdd_cmdb.setStatusTip("Update the database from the CMDB exports that are present in the exports folder")
         refresh_bdd_cmdb.triggered.connect(lambda: self.update_db("cmdb"))
+        
+        # Menu fichier > Refesh BDD CMDB ALL
+        refresh_bdd_cmdb_all = QtWidgets.QAction(QtGui.QIcon('icons/refresh.png'), '&Mise à jour CMDB ALL', self)
+        refresh_bdd_cmdb_all.setStatusTip("Update the database from the CMDB ALL exports that are present in the exports folder")
+        refresh_bdd_cmdb_all.triggered.connect(lambda: self.update_db("cmdb_all"))
 
         # Menu file > Renommer les exports
         rename_export = QtWidgets.QAction(QtGui.QIcon('icons/rename.png'), '&Renommer les exports', self)
@@ -120,6 +129,11 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         list_exports_action_cmdb = QtWidgets.QAction(QtGui.QIcon('icons/list.png'), '&Lister les exports CMDB', self)
         list_exports_action_cmdb.setStatusTip("List the CMDB export files (.csv) present")
         list_exports_action_cmdb.triggered.connect(lambda: tools_instance.list_exports("cmdb"))
+        
+        # Menu Parameters > List the CMDB ALL export files present
+        list_exports_action_cmdb_all = QtWidgets.QAction(QtGui.QIcon('icons/list.png'), '&Lister les exports CMDB ALL', self)
+        list_exports_action_cmdb_all.setStatusTip("List the CMDB ALL export files (.csv) present")
+        list_exports_action_cmdb_all.triggered.connect(lambda: tools_instance.list_exports("cmdb_all"))
 
         # Menu Parameters > List the export files authorized to be imported into the database
         list_files_authorized_action = QtWidgets.QAction(QtGui.QIcon('icons/list.png'), '&Lister les fichiers autorisés', self)
@@ -136,11 +150,13 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.menuFile.addAction(refresh_bdd_vmware)
         self.menuFile.addAction(refresh_bdd_opca)
         self.menuFile.addAction(refresh_bdd_cmdb)
+        self.menuFile.addAction(refresh_bdd_cmdb_all)
         self.menuFile.addAction(rename_export)
         self.menuFile.addAction(exit_action)
         self.menuParameters.addAction(list_exports_action_vmware)
         self.menuParameters.addAction(list_exports_action_opca)
         self.menuParameters.addAction(list_exports_action_cmdb)
+        self.menuParameters.addAction(list_exports_action_cmdb_all)
         self.menuParameters.addAction(list_files_authorized_action)
         self.menuAbout.addAction(see_about_action)
 
@@ -149,6 +165,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.rename_imported_files_to_authorized_files("authorized_files_vmware", "vmware")
         self.rename_imported_files_to_authorized_files("authorized_files_opca", "opca")
         # self.rename_imported_files_to_authorized_files("authorized_files_cmdb", "cmdb")
+        # self.rename_imported_files_to_authorized_files("authorized_files_cmdb_all", "cmdb_all")
 
     def rename_imported_files_to_authorized_files(self, section_ini_authorized_files, export_type):
         authorized_files_parser = configparser.ConfigParser()
@@ -186,6 +203,8 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         elif export_type == "opca":
             self.result_folder_opca = f"Dernières modifications des exports {export_type} : {str(last_modified_date)}"
         elif export_type == "cmdb":
+            self.result_folder_cmdb = f"Dernières modifications des exports {export_type} : {str(last_modified_date)}"
+        elif export_type == "cmdb_all":
             self.result_folder_cmdb = f"Dernières modifications des exports {export_type} : {str(last_modified_date)}"
 
     def display_exports_folders_dates(self):
@@ -226,7 +245,8 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.authorized_files_vmware_source_list = self.read_authorized_files_config("authorized_files_vmware")
         self.authorized_files_opca_source_list = self.read_authorized_files_config("authorized_files_opca")
         self.authorized_files_cmdb_source_list = self.read_authorized_files_config("authorized_files_cmdb")
-        self.authorized_files_source_list = self.authorized_files_vmware_source_list + self.authorized_files_opca_source_list + self.authorized_files_cmdb_source_list
+        self.authorized_files_cmdb_all_source_list = self.read_authorized_files_config("authorized_files_cmdb_all")
+        self.authorized_files_source_list = self.authorized_files_vmware_source_list + self.authorized_files_opca_source_list + self.authorized_files_cmdb_source_list + self.authorized_files_cmdb_all_source_list
 
     def display_list_authorized_files(self):
         self.list_authorized_files()
@@ -357,6 +377,35 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
                 # print(list_data_cmdb_temp)
                 list_data_cmdb.extend(list_data_cmdb_temp)
                 # print(list_data_cmdb)
+                
+        elif export_type == "cmdb_all":
+            # Create list of list from cmdb export file
+            # print(files_paths_authorized_list)
+            list_data_cmdb_all = []
+            files_paths_authorized_list_len = len(files_paths_authorized_list)
+            step = 0
+            for file_number, file_path_authorized in enumerate(files_paths_authorized_list, 1):
+                file_authorized = os.path.basename(file_path_authorized)
+                main_window.textEdit.setText(f"Data retrieval from the file {format(file_authorized)}...")
+                QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
+
+                # Update of the progress bar
+                main_window.progressBar.show()
+                pourcentage_number = (file_number * 100 - 1) // files_paths_authorized_list_len
+                for between_pourcentage in range(step, pourcentage_number):
+                    time.sleep(0.02)
+                    main_window.statusBar.showMessage(f"Processing of {between_pourcentage}% ...")
+                    main_window.progressBar.setValue(between_pourcentage)
+                    step = (file_number * 100 - 1) // files_paths_authorized_list_len
+
+                    df_cmdb_all = pandas.read_csv(file_path_authorized, sep=',', encoding="Windows-1252")
+                    # The dataframe will contains only these colums
+                    df_cmdb_all = df_cmdb_all[["name", "u_platform_type", "u_device_type", "operational_status", "sys_class_name"]]
+
+                list_data_cmdb_all_temp = df_cmdb_all.values.tolist()
+                # print(list_data_cmdb_all_temp)
+                list_data_cmdb_all.extend(list_data_cmdb_all_temp)
+                # print(list_data_cmdb_all)
 
         main_window.textEdit.setText("Connexion à la base...")
         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
@@ -371,9 +420,10 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
                     db_connection.sql_query_executemany(f"INSERT INTO serveur_opca (serveur_name, dns_name, management_name, host_name) VALUES (?,?,?,?)", data_list)
                 elif export_type == "vmware":
                     db_connection.sql_query_executemany(f"INSERT INTO serveur_vmware (serveur_name, dns_name, management_name, host_name) VALUES (?,?,?,?)", data_list)
-
                 elif export_type == "cmdb":
                     db_connection.sql_query_executemany(f"INSERT INTO serveur_cmdb (serveur_name, environment_name, device_type, operational_status, system_type, asset) VALUES (?,?,?,?,?,?)", list_data_cmdb)
+                elif export_type == "cmdb_all":
+                    db_connection.sql_query_executemany(f"INSERT INTO serveur_cmdb_all (serveur_name, environment_name, device_type, operational_status, system_type) VALUES (?,?,?,?,?)", list_data_cmdb_all)
 
                 if db_connection.error_db_execution is None:
                     main_window.textEdit.setText(f"La base de données {export_type} contient {str(db_connection.cursor.rowcount)} lignes.")
