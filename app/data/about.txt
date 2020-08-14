@@ -1,4 +1,4 @@
-Finder 0.1.0-dev
+Finder 0.1.1-dev
 ------------------
 
 - Application : Python 3.7
