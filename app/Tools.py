@@ -65,7 +65,8 @@ class Tools(QtWidgets.QWidget):
                                            c.environment_name,
                                            c.device_type,
                                            c.operational_status,
-                                           c.system_type
+                                           c.system_type,
+                                           c.asset
                                     from (
                                       select upper(serveur_name) serveur_name from serveur_cmdb union
                                       select upper(serveur_name) from serveur_vmware union
@@ -84,7 +85,7 @@ class Tools(QtWidgets.QWidget):
                             # For each search string in list
                             for file_number_search, search_string in enumerate(search_list, 1):
                                 search_string = str.strip(search_string)  # delete spaces before and after the
-                                self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...") 
+                                self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...")
                                 db_connection.sql_query_execute(f"""
                                 select DISTINCT t.serveur_name,
                                            coalesce(v.management_name, o.management_name) management_name,
@@ -92,7 +93,8 @@ class Tools(QtWidgets.QWidget):
                                            c.environment_name,
                                            c.device_type,
                                            c.operational_status,
-                                           c.system_type
+                                           c.system_type,
+                                           c.asset
                                     from (
                                       select upper(serveur_name) serveur_name from serveur_cmdb union
                                       select upper(serveur_name) from serveur_vmware union
@@ -110,7 +112,7 @@ class Tools(QtWidgets.QWidget):
                                 rows_result_sql = db_connection.cursor.fetchall()
                                 if not rows_result_sql:
                                     nbr_result_ko += 1
-                                    results_query_search.append((search_string, 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports'))
+                                    results_query_search.append((search_string, 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports'))
                                 if rows_result_sql:
                                     nbr_item_in_list = len(rows_result_sql)
                                     results_query_search.extend(rows_result_sql)
@@ -131,17 +133,17 @@ class Tools(QtWidgets.QWidget):
 
                     for nbr, result_query_search in enumerate(results_query_search, 1):
                         #  print(result_query_search)
-                        serveur_name, management_name, dns_name, environment_name, device_type, operational_status, system_type = result_query_search  # unpacking
+                        serveur_name, management_name, dns_name, environment_name, device_type, operational_status, system_type, asset = result_query_search  # unpacking
                         if management_name == 'Non présent dans les exports':
-                            list_result.append(f"{serveur_name} --> {red_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type} --> {operational_status} --> {system_type}")
+                            list_result.append(f"{serveur_name} --> {red_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type} --> {operational_status} --> {system_type} --> {asset}")
                         else:
-                            list_result.append(f"{serveur_name} --> {green_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type} --> {operational_status} --> {system_type}")
+                            list_result.append(f"{serveur_name} --> {green_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type} --> {operational_status} --> {system_type} --> {asset}")
                         list_result_saut = "<br>".join(list_result)
                     # Display result in text edit
                     self.window_instance.textEdit.setText(list_result_saut)
                     # Display data results in tableview
                     # header table view
-                    header = ['Nom', 'vCenter ou ESXi (vmware), Management Node (opca)', 'Nom DNS (vmware)', 'Environnement/Application (CMDB)', 'Type (CMDB)', 'Status opérationnel (CMDB)', 'Type de Système (CMDB)']
+                    header = ['Nom', 'vCenter ou ESXi (vmware), Management Node (opca)', 'Nom DNS (vmware)', 'Environnement/Application (CMDB)', 'Type (CMDB)', 'Status opérationnel (CMDB)', 'Type de Système (CMDB)', 'Asset (CMDB)']
                     # Create instance table view
                     table_model = MyTableModel.MyTableModel(results_query_search, header)
                     self.window_instance.tableView.setModel(table_model)
