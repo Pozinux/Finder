@@ -67,13 +67,13 @@ class Tools(QtWidgets.QWidget):
                                            c.operational_status,
                                            c.system_type
                                     from (
-                                      select serveur_name from serveur_cmdb union
-                                      select serveur_name from serveur_vmware union
-                                      select serveur_name from serveur_opca
+                                      select upper(serveur_name) serveur_name from serveur_cmdb union
+                                      select upper(serveur_name) from serveur_vmware union
+                                      select upper(serveur_name) from serveur_opca
                                     ) t
-                                    left join serveur_cmdb c on c.serveur_name = t.serveur_name
-                                    left join serveur_vmware v on v.serveur_name = t.serveur_name
-                                    left join serveur_opca o on o.serveur_name = t.serveur_name
+                                    left join serveur_cmdb c on c.serveur_name = t.serveur_name COLLATE NOCASE
+                                    left join serveur_vmware v on v.serveur_name = t.serveur_name COLLATE NOCASE
+                                    left join serveur_opca o on o.serveur_name = t.serveur_name COLLATE NOCASE
                                 """)
                             results_query_search = db_connection.cursor.fetchall()
                         else:  # if search is not empty
@@ -94,13 +94,13 @@ class Tools(QtWidgets.QWidget):
                                            c.operational_status,
                                            c.system_type
                                     from (
-                                      select serveur_name from serveur_cmdb union
-                                      select serveur_name from serveur_vmware union
-                                      select serveur_name from serveur_opca
+                                      select upper(serveur_name) serveur_name from serveur_cmdb union
+                                      select upper(serveur_name) from serveur_vmware union
+                                      select upper(serveur_name) from serveur_opca
                                     ) t
-                                    left join serveur_cmdb c on c.serveur_name = t.serveur_name
-                                    left join serveur_vmware v on v.serveur_name = t.serveur_name
-                                    left join serveur_opca o on o.serveur_name = t.serveur_name 
+                                    left join serveur_cmdb c on c.serveur_name = t.serveur_name COLLATE NOCASE
+                                    left join serveur_vmware v on v.serveur_name = t.serveur_name COLLATE NOCASE
+                                    left join serveur_opca o on o.serveur_name = t.serveur_name COLLATE NOCASE
                                 WHERE v.dns_name LIKE \'%{search_string}%\' 
                                     OR v.serveur_name LIKE \'%{search_string}%\'
                                     OR o.dns_name LIKE \'%{search_string}%\' 
