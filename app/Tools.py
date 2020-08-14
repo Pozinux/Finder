@@ -59,7 +59,7 @@ class Tools(QtWidgets.QWidget):
                         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                         if not search_list:
                             db_connection.sql_query_execute(f"""
-                                    select t.serveur_name,
+                                    select DISTINCT t.serveur_name,
                                            coalesce(v.management_name, o.management_name) management_name,
                                            coalesce(v.dns_name, o.dns_name) dns_name,
                                            c.environment_name,
@@ -86,7 +86,7 @@ class Tools(QtWidgets.QWidget):
                                 search_string = str.strip(search_string)  # delete spaces before and after the
                                 self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...") 
                                 db_connection.sql_query_execute(f"""
-                                select t.serveur_name,
+                                select DISTINCT t.serveur_name,
                                            coalesce(v.management_name, o.management_name) management_name,
                                            coalesce(v.dns_name, o.dns_name) dns_name,
                                            c.environment_name,
@@ -281,7 +281,7 @@ class Tools(QtWidgets.QWidget):
                         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                         if not search_list:
                             db_connection.sql_query_execute(f"""
-                                select c.environment_name,
+                                select DISTINCT c.environment_name,
                                        t.serveur_name
                                 from (
                                   select serveur_name from serveur_cmdb union
@@ -303,7 +303,7 @@ class Tools(QtWidgets.QWidget):
                                 search_string = str.strip(search_string)  # delete spaces before and after the
                                 self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...")
                                 db_connection.sql_query_execute(f"""
-                                    select c.environment_name,
+                                    select DISTINCT c.environment_name,
                                            t.serveur_name
                                     from (
                                       select serveur_name from serveur_cmdb union
