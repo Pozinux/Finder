@@ -1,7 +1,7 @@
-Finder 0.1.0
+Finder 0.1.1-dev
 ------------------
 
 - Application : Python 3.7
-- Base de données : MySQL
-- Auteur : Timothé Poznanski
+- Base de donnees : SQlite
+- Auteur : Timothe Poznanski
 - Date : 2019

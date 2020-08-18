@@ -9,11 +9,10 @@ import pandas
 from PySide2 import QtWidgets, QtGui, QtCore
 
 import constantes
-from app.ConfigureDatabase import ConfigureDatabase
-from app.DatabaseGestion import DatabaseGestion
-from app.ImportList import ImportList
-from app.Tools import Tools
-from app.graphique.MainWindow import Ui_MainWindow
+from DatabaseGestionSqlite import DatabaseGestionSqlite
+from ImportList import ImportList
+from Tools import Tools
+from graphique.MainWindow import Ui_MainWindow
 
 """ CONVENTIONS
 file_path = "D:\folder1\folder2\file.ext"
@@ -35,11 +34,13 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.authorized_files_opca_source_list = []
         self.authorized_files_cmdb_source_list = []
         self.authorized_files_vmware_source_list = []
+        self.authorized_files_cmdb_all_source_list = []
         self.files_renamed = []
         self.files_not_renamed = []
         self.result_folder_vmware = ""
         self.result_folder_opca = ""
         self.result_folder_cmdb = ""
+        self.result_folder_cmdb_all = ""
         self.exports_folders_dates = ""
 
         # Initialiser l'interface graphique
@@ -61,13 +62,14 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         pathlib.Path(constantes.EXPORTS_OPCA_DIR).mkdir(parents=True, exist_ok=True)  # Creating the opca export folder if it does not already exist
         pathlib.Path(constantes.EXPORTS_VMWARE_DIR).mkdir(parents=True, exist_ok=True)  # Creating the rvtools export folder if it does not already exist
         pathlib.Path(constantes.EXPORTS_CMDB_DIR).mkdir(parents=True, exist_ok=True)  # Creating the cmdb export folder if it does not already exist
+        pathlib.Path(constantes.EXPORTS_CMDB_ALL_DIR).mkdir(parents=True, exist_ok=True)  # Creating the cmdb_all export folder if it does not already exist
 
         self.get_export_folder_date("vmware")  # Récupérer et afficher la date du répertoire d'exports vmware
         self.get_export_folder_date("opca")  # Récupérer et afficher la date du répertoire d'exports opca
         self.get_export_folder_date("cmdb")  # Récupérer et afficher la date du répertoire d'exports cmdb
+        self.get_export_folder_date("cmdb_all")  # Récupérer et afficher la date du répertoire d'exports cmdb_all
         self.display_exports_folders_dates()
 
-        self.check_config_db_file()  # Je vérifie car je ne synchronise pas ce fichier avec git /   # Vérifier et afficher si paramètres connexion base par défaut
         self.list_authorized_files()  # Génére la liste des fichiers authorisés à l'ouverture de l'appli afin de pouvoir lister les exports (dans paramètres)
 
     def menu_bar(self):
@@ -90,18 +92,23 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Menu fichier > Refesh BDD VMware
         refresh_bdd_vmware = QtWidgets.QAction(QtGui.QIcon('icons/refresh.png'), '&Mise à jour VMware', self)
-        refresh_bdd_vmware.setStatusTip("Update the database from the RVTools that are present the exports folder")
+        refresh_bdd_vmware.setStatusTip("Update the database from the RVTools that are present in the exports folder")
         refresh_bdd_vmware.triggered.connect(lambda: self.update_db("vmware"))
 
         # Menu fichier > Refesh BDD OPCA
         refresh_bdd_opca = QtWidgets.QAction(QtGui.QIcon('icons/refresh.png'), '&Mise à jour OPCA', self)
-        refresh_bdd_opca.setStatusTip("Update the database from the OPCA exports that are present the exports folder")
+        refresh_bdd_opca.setStatusTip("Update the database from the OPCA exports that are present in the exports folder")
         refresh_bdd_opca.triggered.connect(lambda: self.update_db("opca"))
 
         # Menu fichier > Refesh BDD CMDB
-        refresh_bdd_cmdb = QtWidgets.QAction(QtGui.QIcon('icons/refresh.png'), '&Mise à jour CMDB', self)
-        refresh_bdd_cmdb.setStatusTip("Update the database from the CMDB exports that are present the exports folder")
+        refresh_bdd_cmdb = QtWidgets.QAction(QtGui.QIcon('icons/refresh.png'), '&Mise à jour CMDB APPLI', self)
+        refresh_bdd_cmdb.setStatusTip("Update the database from the CMDB exports that are present in the exports folder")
         refresh_bdd_cmdb.triggered.connect(lambda: self.update_db("cmdb"))
+        
+        # Menu fichier > Refesh BDD CMDB ALL
+        refresh_bdd_cmdb_all = QtWidgets.QAction(QtGui.QIcon('icons/refresh.png'), '&Mise à jour CMDB ALL', self)
+        refresh_bdd_cmdb_all.setStatusTip("Update the database from the CMDB ALL exports that are present in the exports folder")
+        refresh_bdd_cmdb_all.triggered.connect(lambda: self.update_db("cmdb_all"))
 
         # Menu file > Renommer les exports
         rename_export = QtWidgets.QAction(QtGui.QIcon('icons/rename.png'), '&Renommer les exports', self)
@@ -122,16 +129,16 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         list_exports_action_cmdb = QtWidgets.QAction(QtGui.QIcon('icons/list.png'), '&Lister les exports CMDB', self)
         list_exports_action_cmdb.setStatusTip("List the CMDB export files (.csv) present")
         list_exports_action_cmdb.triggered.connect(lambda: tools_instance.list_exports("cmdb"))
+        
+        # Menu Parameters > List the CMDB ALL export files present
+        list_exports_action_cmdb_all = QtWidgets.QAction(QtGui.QIcon('icons/list.png'), '&Lister les exports CMDB ALL', self)
+        list_exports_action_cmdb_all.setStatusTip("List the CMDB ALL export files (.csv) present")
+        list_exports_action_cmdb_all.triggered.connect(lambda: tools_instance.list_exports("cmdb_all"))
 
         # Menu Parameters > List the export files authorized to be imported into the database
         list_files_authorized_action = QtWidgets.QAction(QtGui.QIcon('icons/list.png'), '&Lister les fichiers autorisés', self)
         list_files_authorized_action.setStatusTip("Liste les exports autorisés à être importés dans la base en fonction des informations du fichier .ini")
         list_files_authorized_action.triggered.connect(self.display_list_authorized_files)
-
-        # Menu Parameters > Configure the connection to the database
-        configure_database_action = QtWidgets.QAction(QtGui.QIcon('icons/configdb.png'), '&Configurer la connexion à la base', self)
-        configure_database_action.setStatusTip("Configure the connection to the database")
-        configure_database_action.triggered.connect(self.configure_database)
 
         # Menu About > About
         see_about_action = QtWidgets.QAction(QtGui.QIcon('icons/about.png'), '&A propos', self)
@@ -143,46 +150,22 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.menuFile.addAction(refresh_bdd_vmware)
         self.menuFile.addAction(refresh_bdd_opca)
         self.menuFile.addAction(refresh_bdd_cmdb)
+        self.menuFile.addAction(refresh_bdd_cmdb_all)
         self.menuFile.addAction(rename_export)
         self.menuFile.addAction(exit_action)
         self.menuParameters.addAction(list_exports_action_vmware)
         self.menuParameters.addAction(list_exports_action_opca)
         self.menuParameters.addAction(list_exports_action_cmdb)
+        self.menuParameters.addAction(list_exports_action_cmdb_all)
         self.menuParameters.addAction(list_files_authorized_action)
-        self.menuParameters.addAction(configure_database_action)
         self.menuAbout.addAction(see_about_action)
-
-    def check_config_db_file(self):
-        config_db_ini = constantes.CONFIG_DB_INI
-        my_config_db_ini = pathlib.Path(config_db_ini)
-        if my_config_db_ini.is_file():
-            # print("Le fichier config_db_ini existe déjà.")
-            with open(config_db_ini, 'r') as file:
-                file_into_string = file.read()
-                matches = ["hostname or IP", "database_name", "database_user", "database_password"]
-                # if any(x in file_into_string for x in matches):
-                match = next((x for x in matches if x in file_into_string), False)
-                if match:
-                    self.textEdit.setText(f"\"{match}\" est un paramètre par défaut.\n\nVeuillez modifier les paramètres de connexion à la base en allant dans Paramètres > Configurer la connexion à la base.")
-                else:
-                    # self.textEdit.setText("Paramètres de connexion à la base de donnée enregistrés.")  # Je l'enlève pour ne pas à l'avoir à chaque lancement de l'appli
-                    self.textEdit.setText("")
-        else:
-            logging.debug(f"config_db_ini -> {config_db_ini}")
-            f = open(config_db_ini, 'w')
-            f.write("[mysql]\n"
-                    "host = hostname or IP\n"
-                    "database = database_name\n"
-                    "user = database_user\n"
-                    "password = database_password\n")
-            f.close()
-            self.textEdit.setText("Veuillez enregistrer les paramètres de connexion à la BDD en allant dans Paramètres > Configurer la connexion à la base.")
 
     def rename_exports(self):
         self.files_renamed = []
         self.rename_imported_files_to_authorized_files("authorized_files_vmware", "vmware")
         self.rename_imported_files_to_authorized_files("authorized_files_opca", "opca")
         # self.rename_imported_files_to_authorized_files("authorized_files_cmdb", "cmdb")
+        # self.rename_imported_files_to_authorized_files("authorized_files_cmdb_all", "cmdb_all")
 
     def rename_imported_files_to_authorized_files(self, section_ini_authorized_files, export_type):
         authorized_files_parser = configparser.ConfigParser()
@@ -221,9 +204,11 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
             self.result_folder_opca = f"Dernières modifications des exports {export_type} : {str(last_modified_date)}"
         elif export_type == "cmdb":
             self.result_folder_cmdb = f"Dernières modifications des exports {export_type} : {str(last_modified_date)}"
+        elif export_type == "cmdb_all":
+            self.result_folder_cmdb_all = f"Dernières modifications des exports {export_type} : {str(last_modified_date)}"
 
     def display_exports_folders_dates(self):
-        self.exports_folders_dates = self.result_folder_vmware + "\n\n" + self.result_folder_opca + "\n\n" + self.result_folder_cmdb
+        self.exports_folders_dates = self.result_folder_vmware + "\n\n" + self.result_folder_opca + "\n\n" + self.result_folder_cmdb + "\n\n" + self.result_folder_cmdb_all
         self.textEdit_2.setText(f"{self.exports_folders_dates}")
 
     @staticmethod
@@ -260,7 +245,8 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.authorized_files_vmware_source_list = self.read_authorized_files_config("authorized_files_vmware")
         self.authorized_files_opca_source_list = self.read_authorized_files_config("authorized_files_opca")
         self.authorized_files_cmdb_source_list = self.read_authorized_files_config("authorized_files_cmdb")
-        self.authorized_files_source_list = self.authorized_files_vmware_source_list + self.authorized_files_opca_source_list + self.authorized_files_cmdb_source_list
+        self.authorized_files_cmdb_all_source_list = self.read_authorized_files_config("authorized_files_cmdb_all")
+        self.authorized_files_source_list = self.authorized_files_vmware_source_list + self.authorized_files_opca_source_list + self.authorized_files_cmdb_source_list + self.authorized_files_cmdb_all_source_list
 
     def display_list_authorized_files(self):
         self.list_authorized_files()
@@ -296,7 +282,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton.setIcon(search_icon)
         self.pushButton_2.setIcon(list_icon)
         # ComboBox = drop-down menu
-        self.comboBox.addItems(["Serveur", "Host", "Application"])
+        self.comboBox.addItems(["Equipement", "Host (ESXi ou CN)", "Application"])
 
     def update_db(self, export_type):
         """ Updates the bdd according to the files in the export folder.
@@ -362,8 +348,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
                 df = df.where((pandas.notnull(df)), 'N/A')  # Remplacer les 'nan' (générés par panda quand il n'y a pas de valeur dans la case excel) par des 'N/A' sinon SQL traitera les 'nan' comme des '0'
                 list_data_temp = df.values.tolist()
                 data_list.extend(list_data_temp)
-
-            # print(list_of_data)  # Donne une liste de listes
+            logging.debug(data_list)  # Donne une liste de listes
         elif export_type == "cmdb":
             # Create list of list from cmdb export file
             # print(files_paths_authorized_list)
@@ -386,28 +371,59 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
 
                     df_cmdb = pandas.read_csv(file_path_authorized, sep=',', encoding="Windows-1252")
                     # The dataframe will contains only these colums
-                    df_cmdb = df_cmdb[["ci6_name", "ci2_name"]]
+                    df_cmdb = df_cmdb[["ci6_name", "ci2_name", "ci6_u_device_type", "ci6_operational_status", "ci6_sys_class_name", "ci6_asset_tag"]]
 
                 list_data_cmdb_temp = df_cmdb.values.tolist()
                 # print(list_data_cmdb_temp)
                 list_data_cmdb.extend(list_data_cmdb_temp)
                 # print(list_data_cmdb)
+                
+        elif export_type == "cmdb_all":
+            # Create list of list from cmdb export file
+            # print(files_paths_authorized_list)
+            list_data_cmdb_all = []
+            files_paths_authorized_list_len = len(files_paths_authorized_list)
+            step = 0
+            for file_number, file_path_authorized in enumerate(files_paths_authorized_list, 1):
+                file_authorized = os.path.basename(file_path_authorized)
+                main_window.textEdit.setText(f"Data retrieval from the file {format(file_authorized)}...")
+                QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
+
+                # Update of the progress bar
+                main_window.progressBar.show()
+                pourcentage_number = (file_number * 100 - 1) // files_paths_authorized_list_len
+                for between_pourcentage in range(step, pourcentage_number):
+                    time.sleep(0.02)
+                    main_window.statusBar.showMessage(f"Processing of {between_pourcentage}% ...")
+                    main_window.progressBar.setValue(between_pourcentage)
+                    step = (file_number * 100 - 1) // files_paths_authorized_list_len
+
+                    df_cmdb_all = pandas.read_csv(file_path_authorized, sep=',', encoding="Windows-1252")
+                    # The dataframe will contains only these colums
+                    df_cmdb_all = df_cmdb_all[["name", "u_platform_type", "u_device_type", "operational_status", "sys_class_name"]]
+
+                list_data_cmdb_all_temp = df_cmdb_all.values.tolist()
+                # print(list_data_cmdb_all_temp)
+                list_data_cmdb_all.extend(list_data_cmdb_all_temp)
+                # print(list_data_cmdb_all)
 
         main_window.textEdit.setText("Connexion à la base...")
         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
         time.sleep(2)  # The connection is sometimes so fast that there is no time to display the text that indicates the connection
-        with DatabaseGestion() as db_connection:  # "with" allows you to use a context manager that will automatically call the disconnect function when you exit the scope
+        with DatabaseGestionSqlite() as db_connection:  # "with" allows you to use a context manager that will automatically call the disconnect function when you exit the scope
             if db_connection.error_db_connection is None:
-                db_connection.sql_query_execute("TRUNCATE TABLE serveur_" + export_type)
+                logging.debug("DELETE FROM serveur_" + export_type)
+                db_connection.sql_query_execute("DELETE FROM serveur_" + export_type)
                 main_window.textEdit.setText(f"Insertion des données de {export_type} dans la base...")
                 QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                 if export_type == "opca":
-                    db_connection.sql_query_executemany(f"INSERT INTO serveur_opca (serveur_name, dns_name, management_name, host_name) VALUES (%s,%s,%s,%s)", data_list)
+                    db_connection.sql_query_executemany(f"INSERT INTO serveur_opca (serveur_name, dns_name, management_name, host_name) VALUES (?,?,?,?)", data_list)
                 elif export_type == "vmware":
-                    db_connection.sql_query_executemany(f"INSERT INTO serveur_vmware (serveur_name, dns_name, management_name, host_name) VALUES (%s,%s,%s,%s)", data_list)
-
+                    db_connection.sql_query_executemany(f"INSERT INTO serveur_vmware (serveur_name, dns_name, management_name, host_name) VALUES (?,?,?,?)", data_list)
                 elif export_type == "cmdb":
-                    db_connection.sql_query_executemany(f"INSERT INTO serveur_cmdb (serveur_name, environment_name) VALUES (%s,%s)", list_data_cmdb)
+                    db_connection.sql_query_executemany(f"INSERT INTO serveur_cmdb (serveur_name, environment_name, device_type, operational_status, system_type, asset) VALUES (?,?,?,?,?,?)", list_data_cmdb)
+                elif export_type == "cmdb_all":
+                    db_connection.sql_query_executemany(f"INSERT INTO serveur_cmdb_all (serveur_name, environment_name, device_type, operational_status, system_type) VALUES (?,?,?,?,?)", list_data_cmdb_all)
 
                 if db_connection.error_db_execution is None:
                     main_window.textEdit.setText(f"La base de données {export_type} contient {str(db_connection.cursor.rowcount)} lignes.")
@@ -470,12 +486,6 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.window_import_list = ImportList(main_window, tools_instance)  # Je fourni à la classe ImportList l'instance main_window en paramètre
         self.reset_progressbar_statusbar()
         self.window_import_list.show()
-
-    def configure_database(self):
-        # noinspection PyAttributeOutsideInit
-        self.window_Configure_Database = ConfigureDatabase(main_window)
-        self.window_Configure_Database.show()
-        self.reset_progressbar_statusbar()
 
 
 # MAIN

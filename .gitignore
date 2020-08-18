@@ -5,6 +5,5 @@
 .idea/
 
 ## Projet
-# exports/
 config_db.ini
 sqlite_db_file.db

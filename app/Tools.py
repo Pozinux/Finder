@@ -5,13 +5,12 @@ import time
 from PySide2 import QtWidgets
 
 import AlignDelegate
-import DatabaseGestion
+import DatabaseGestionSqlite
 import MyTableModel
 import constantes
 
 
 # Les fonctions dans Tools ont besoin de l'UI. Donc je passe une instance de l'UI.
-
 
 class Tools(QtWidgets.QWidget):
     def __init__(self, window_instance):
@@ -19,7 +18,7 @@ class Tools(QtWidgets.QWidget):
         super(Tools, self).__init__()
 
     def is_db_empty(self):
-        with DatabaseGestion.DatabaseGestion() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
+        with DatabaseGestionSqlite.DatabaseGestionSqlite() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
             if db_connection.error_db_connection is None:
                 self.window_instance.textEdit.setText("Base de donnée vide ? Vérification en cours...")
                 db_connection.sql_query_execute(f'SELECT * FROM serveur_vmware')
@@ -35,25 +34,23 @@ class Tools(QtWidgets.QWidget):
                 return False
 
     def search(self, search_list):
-
+        results_query_search = []
+        nbr_result_ko = 0
+        nbr_result_ok = 0
+        red_text = "<span style=\" color:#ff0000;\" >"
+        text_end = "</span>"
+        green_text = "<span style=\" color:#5ea149;\" >"
         search_choice = self.window_instance.comboBox.currentText()
         self.window_instance.textEdit.setText("Connexion à la base de données...")
         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
-        dict_search_choice = {'Serveur': 'serveur_name', 'Host': 'host_name', 'Application': 'appli_name'}
-        search_choice = dict_search_choice.get(search_choice, 'default')  # We get the field to use for the select and where in the SQL query and if it is neither of them we put "default"
-        # print(search_choice)
-        if search_choice == 'serveur_name':
-            results_query_search = []
-            nbr_result_ko = 0
-            nbr_result_ok = 0
-            red_text = "<span style=\" color:#ff0000;\" >"
-            text_end = "</span>"
-            green_text = "<span style=\" color:#5ea149;\" >"
-            logging.debug(f"search_list: {search_list}")
+        # dict_search_choice = {'Serveur': 'serveur_name', 'Host': 'host_name', 'Application': 'appli_name'}
+        # search_choice = dict_search_choice.get(search_choice, 'default')  # We get the field to use for the select and where in the SQL query and if it is neither of them we put "default"
+        logging.debug(f"search_choice: {search_choice}")
+        logging.debug(f"search_list: {search_list}")
 
-            with DatabaseGestion.DatabaseGestion() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
-                if db_connection.error_db_connection is None:
-
+        with DatabaseGestionSqlite.DatabaseGestionSqlite() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
+            if db_connection.error_db_connection is None:
+                if search_choice == 'Equipement':
                     if self.is_db_empty():
                         pass
                     else:
@@ -62,67 +59,69 @@ class Tools(QtWidgets.QWidget):
                         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                         if not search_list:
                             db_connection.sql_query_execute(f"""
-                                                                    SELECT DISTINCT v.serveur_name, v.management_name, IF(v.dns_name is null, \'N/A\', v.dns_name), IF(c.environment_name is null, \'N/A\', c.environment_name) 
-                                                                    FROM serveur_vmware as v 
-                                                                    LEFT JOIN serveur_cmdb as c 
-                                                                    ON(v.serveur_name = c.serveur_name)""")
-
-                            rows_vmware = db_connection.cursor.fetchall()
-
-                            db_connection.sql_query_execute(f"""SELECT DISTINCT o.serveur_name, o.management_name, IF(o.dns_name is null, \'N/A\', o.dns_name), IF(c.environment_name is null, \'N/A\', c.environment_name) 
-                                                                    FROM serveur_opca as o 
-                                                                    LEFT JOIN serveur_cmdb as c 
-                                                                    ON(o.serveur_name = c.serveur_name)""")
-
-                            rows_opca = db_connection.cursor.fetchall()
-
-                            results_query_search.extend(rows_vmware)
-                            results_query_search.extend(rows_opca)
-
+                                    select DISTINCT t.serveur_name,
+                                           coalesce(v.management_name, o.management_name) management_name,
+                                           coalesce(v.dns_name, o.dns_name) dns_name,
+                                           coalesce(c.environment_name, ca.environment_name) environment_name,
+                                           coalesce(c.device_type, ca.device_type) device_type,
+                                           coalesce(c.operational_status, ca.operational_status) operational_status,
+                                           coalesce(c.system_type, ca.system_type) system_type,
+                                           c.asset
+                                    from (
+                                      select upper(serveur_name) serveur_name from serveur_cmdb_all union
+                                      select upper(serveur_name) serveur_name from serveur_cmdb union
+                                      select upper(serveur_name) from serveur_vmware union
+                                      select upper(serveur_name) from serveur_opca
+                                    ) t
+                                    left join serveur_cmdb_all ca on ca.serveur_name = t.serveur_name COLLATE NOCASE
+                                    left join serveur_cmdb c on c.serveur_name = t.serveur_name COLLATE NOCASE
+                                    left join serveur_vmware v on v.serveur_name = t.serveur_name COLLATE NOCASE
+                                    left join serveur_opca o on o.serveur_name = t.serveur_name COLLATE NOCASE
+                                """)
+                            results_query_search = db_connection.cursor.fetchall()
                         else:  # if search is not empty
                             search_list_len = len(search_list)
                             step_search = 0
                             self.window_instance.textEdit.setText("Recherche en cours...")
                             QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
-
                             # For each search string in list
                             for file_number_search, search_string in enumerate(search_list, 1):
                                 search_string = str.strip(search_string)  # delete spaces before and after the
-                                self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...")
-
+                                self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...") 
                                 db_connection.sql_query_execute(f"""
-                                                                        SELECT DISTINCT v.serveur_name, v.management_name, IF(v.dns_name is null, \'N/A\', v.dns_name), IF(c.environment_name is null, \'N/A\', c.environment_name) 
-                                                                        FROM serveur_vmware as v 
-                                                                        LEFT JOIN serveur_cmdb as c 
-                                                                        ON(v.serveur_name = c.serveur_name) 
-                                                                        WHERE v.dns_name LIKE \'%{search_string}%\'
-                                                                        OR v.serveur_name LIKE \'%{search_string}%\'""")
-
-                                rows_vmware = db_connection.cursor.fetchall()
-
-                                db_connection.sql_query_execute(f"""SELECT DISTINCT o.serveur_name, o.management_name, IF(o.dns_name is null, \'N/A\', o.dns_name), IF(c.environment_name is null, \'N/A\', c.environment_name) 
-                                                                        FROM serveur_opca as o 
-                                                                        LEFT JOIN serveur_cmdb as c 
-                                                                        ON(o.serveur_name = c.serveur_name) 
-                                                                        WHERE o.dns_name LIKE \'%{search_string}%\'
-                                                                        OR o.serveur_name LIKE \'%{search_string}%\'""")
-
-                                rows_opca = db_connection.cursor.fetchall()
-
-                                if not rows_opca and not rows_vmware:
+                                select DISTINCT t.serveur_name,
+                                           coalesce(v.management_name, o.management_name) management_name,
+                                           coalesce(v.dns_name, o.dns_name) dns_name,
+                                           coalesce(c.environment_name, ca.environment_name) environment_name,
+                                           coalesce(c.device_type, ca.device_type) device_type,
+                                           coalesce(c.operational_status, ca.operational_status) operational_status,
+                                           coalesce(c.system_type, ca.system_type) system_type,
+                                           c.asset
+                                    from (
+                                      select upper(serveur_name) serveur_name from serveur_cmdb_all union
+                                      select upper(serveur_name) serveur_name from serveur_cmdb union
+                                      select upper(serveur_name) from serveur_vmware union
+                                      select upper(serveur_name) from serveur_opca
+                                    ) t
+                                    left join serveur_cmdb_all ca on ca.serveur_name = t.serveur_name COLLATE NOCASE
+                                    left join serveur_cmdb c on c.serveur_name = t.serveur_name COLLATE NOCASE
+                                    left join serveur_vmware v on v.serveur_name = t.serveur_name COLLATE NOCASE
+                                    left join serveur_opca o on o.serveur_name = t.serveur_name COLLATE NOCASE
+                                WHERE v.dns_name LIKE \'%{search_string}%\' 
+                                    OR v.serveur_name LIKE \'%{search_string}%\'
+                                    OR o.dns_name LIKE \'%{search_string}%\' 
+                                    OR o.serveur_name LIKE \'%{search_string}%\'
+                                    OR c.serveur_name LIKE \'%{search_string}%\'
+                                    OR ca.serveur_name LIKE \'%{search_string}%\'
+                                """)
+                                rows_result_sql = db_connection.cursor.fetchall()
+                                if not rows_result_sql:
                                     nbr_result_ko += 1
-                                    results_query_search.append((search_string, 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports'))
-
-                                if rows_vmware:
-                                    nbr_item_in_list = len(rows_vmware)
-                                    results_query_search.extend(rows_vmware)
+                                    results_query_search.append((search_string, 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports', 'Non présent dans les exports'))
+                                if rows_result_sql:
+                                    nbr_item_in_list = len(rows_result_sql)
+                                    results_query_search.extend(rows_result_sql)
                                     nbr_result_ok = nbr_result_ok + nbr_item_in_list
-
-                                if rows_opca:
-                                    nbr_item_in_list = len(rows_opca)
-                                    results_query_search.extend(rows_opca)
-                                    nbr_result_ok = nbr_result_ok + nbr_item_in_list
-
                                 if search_list_len > 1:  # To avoid having the progress bar when doing a search on only one item to not waste time
                                     # Update of the progress bar
                                     self.window_instance.progressBar.show()
@@ -133,40 +132,25 @@ class Tools(QtWidgets.QWidget):
                                         self.window_instance.statusBar.showMessage(pourcentage_text_1)
                                         self.window_instance.progressBar.setValue(between_pourcentage_1)
                                         step_search = (file_number_search * 100 - 1) // search_list_len
-
                         nbr = 0  # To get number of results
                         list_result = []
                         list_result_saut = []
 
-                    # print(results_query_search)
-
                     for nbr, result_query_search in enumerate(results_query_search, 1):
-                        # print(result_query_search)
-                        serveur_name, management_name, dns_name, environment_name = result_query_search  # unpacking
-
+                        #  print(result_query_search)
+                        serveur_name, management_name, dns_name, environment_name, device_type, operational_status, system_type, asset = result_query_search  # unpacking
                         if management_name == 'Non présent dans les exports':
-                            list_result.append(f"{serveur_name} --> {red_text}{management_name}{text_end} --> {dns_name} --> {environment_name}")
+                            list_result.append(f"{serveur_name} --> {red_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type} --> {operational_status} --> {system_type} --> {asset}")
                         else:
-                            list_result.append(f"{serveur_name} --> {green_text}{management_name}{text_end} --> {dns_name} --> {environment_name}")
-
+                            list_result.append(f"{serveur_name} --> {green_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type} --> {operational_status} --> {system_type} --> {asset}")
                         list_result_saut = "<br>".join(list_result)
-
                     # Display result in text edit
                     self.window_instance.textEdit.setText(list_result_saut)
-
                     # Display data results in tableview
                     # header table view
-                    header = ['Nom du serveur', 'vCenter ou ESXi (vmware), Management Node (opca)', 'Nom DNS (vmware)', 'Environnement/Application']
-
+                    header = ['Nom', 'vCenter ou ESXi (vmware), Management Node (opca)', 'Nom DNS (vmware)', 'Environnement/Application (CMDB)', 'Type (CMDB)', 'Status opérationnel (CMDB)', 'Type de Système (CMDB)', 'Asset (CMDB)']
                     # Create instance table view
                     table_model = MyTableModel.MyTableModel(results_query_search, header)
-
-                    # Count tab lines
-                    # print(table_model.rowCount(None))
-
-                    # Afficher la liste des data à mettre dans le tableau
-                    # print(table_model.mylist) # print(data_list)
-
                     self.window_instance.tableView.setModel(table_model)
                     # set color and style header
                     # stylesheet = "::section{Background-color:rgb(179, 224, 229);border-radius:14px;}"   # Pour ne pas avoir les bordures des cases du header
@@ -180,31 +164,15 @@ class Tools(QtWidgets.QWidget):
                     self.window_instance.tableView.resizeColumnsToContents()
                     # stretch the last column to the view so that the table view fit the layout
                     self.window_instance.tableView.horizontalHeader().setStretchLastSection(True)
-
                     delegate = AlignDelegate.AlignDelegate(self.window_instance.tableView)
                     # main_window.tableView.setItemDelegateForColumn(2, delegate)  # Pour Centrer le texte de la colonne id 2 (donc la troisième)
                     self.window_instance.tableView.setItemDelegate(delegate)  # for all columns
-
                     # enable sorting
                     self.window_instance.tableView.setSortingEnabled(True)
-
                     self.window_instance.statusBar.showMessage(f"Résultats : {str(nbr)} | OK : {str(nbr_result_ok)} | KO : {str(nbr_result_ko)}")
-
                     self.window_instance.progressBar.reset()
                     # self.window_instance.progressBar.hide()
-                else:
-                    self.window_instance.textEdit.setText(db_connection.message_error_connection_db)
-        elif search_choice == 'host_name':
-            results_query_search = []
-            # nbr_result_ko = 0
-            # nbr_result_ok = 0
-            red_text = "<span style=\" color:#ff0000;\" >"
-            text_end = "</span>"
-            green_text = "<span style=\" color:#5ea149;\" >"
-            logging.debug(f"search_list: {search_list}")
-
-            with DatabaseGestion.DatabaseGestion() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
-                if db_connection.error_db_connection is None:
+                elif search_choice == 'Host (ESXi ou CN)':
                     if self.is_db_empty():
                         pass
                     else:
@@ -212,46 +180,54 @@ class Tools(QtWidgets.QWidget):
                         self.window_instance.textEdit.setText("Recherche en cours...")
                         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                         if not search_list:
-                            db_connection.sql_query_execute(f'SELECT host_name, management_name FROM serveur_vmware')
+                            db_connection.sql_query_execute(f'''
+                                SELECT 
+                                host_name, 
+                                management_name 
+                                FROM serveur_vmware
+                            ''')
                             rows_vmware = db_connection.cursor.fetchall()
-
-                            db_connection.sql_query_execute(f'SELECT host_name, management_name FROM serveur_opca')
+                            db_connection.sql_query_execute(f'''
+                                SELECT 
+                                host_name, 
+                                management_name 
+                                FROM serveur_opca
+                            ''')
                             rows_opca = db_connection.cursor.fetchall()
-
                             results_query_search.extend(rows_vmware)
                             results_query_search.extend(rows_opca)
-
                         else:  # if search is not empty
                             search_list_len = len(search_list)
                             step_search = 0
                             self.window_instance.textEdit.setText("Recherche en cours...")
                             QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
-
                             # For each search string in list
                             for file_number_search, search_string in enumerate(search_list, 1):
                                 search_string = str.strip(search_string)  # delete spaces before and after the
                                 self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...")
-
-                                db_connection.sql_query_execute(f'SELECT host_name, management_name FROM serveur_vmware WHERE host_name LIKE \'%{search_string}%\'')
+                                db_connection.sql_query_execute(f'''
+                                    SELECT 
+                                    host_name, 
+                                    management_name 
+                                    FROM serveur_vmware 
+                                    WHERE host_name LIKE \'%{search_string}%\'
+                                ''')
                                 rows_vmware = db_connection.cursor.fetchall()
-
-                                db_connection.sql_query_execute(f'SELECT host_name, management_name FROM serveur_opca WHERE host_name LIKE \'%{search_string}%\'')
+                                db_connection.sql_query_execute(f'''
+                                    SELECT 
+                                    host_name, 
+                                    management_name 
+                                    FROM serveur_opca 
+                                    WHERE host_name 
+                                    LIKE \'%{search_string}%\'
+                                ''')
                                 rows_opca = db_connection.cursor.fetchall()
-
                                 if not rows_opca and not rows_vmware:
-                                    # nbr_result_ko += 1
                                     results_query_search.append((search_string, 'Non présent dans les exports'))
-
                                 if rows_vmware:
-                                    # nbr_item_in_list = len(rows_vmware)
                                     results_query_search.extend(rows_vmware)
-                                    # nbr_result_ok = nbr_result_ok + nbr_item_in_list
-
                                 if rows_opca:
-                                    # nbr_item_in_list = len(rows_opca)
                                     results_query_search.extend(rows_opca)
-                                    # nbr_result_ok = nbr_result_ok + nbr_item_in_list
-
                                 if search_list_len > 1:  # To avoid having the progress bar when doing a search on only one item to not waste time
                                     # Update of the progress bar
                                     self.window_instance.progressBar.show()
@@ -262,43 +238,25 @@ class Tools(QtWidgets.QWidget):
                                         self.window_instance.statusBar.showMessage(pourcentage_text_1)
                                         self.window_instance.progressBar.setValue(between_pourcentage_1)
                                         step_search = (file_number_search * 100 - 1) // search_list_len
-
                         results_query_search = list(dict.fromkeys(results_query_search))  # Remove the duplicates
                         results_query_search = [x for x in results_query_search if "0" not in x]  # Remove the results that is "0" (for opca data)
-
                         nbr = 0  # To get number of results
                         list_result = []
                         list_result_saut = []
-
-                        # print(results_query_search)
-
                         for nbr, result_query_search in enumerate(results_query_search, 1):
-                            # print(result_query_search)
                             serveur_name, management_name = result_query_search  # unpacking
-
                             if management_name == 'Non présent dans les exports':
                                 list_result.append(f"{serveur_name} --> {red_text}{management_name}{text_end}")
                             else:
                                 list_result.append(f"{serveur_name} --> {green_text}{management_name}{text_end}")
-
                             list_result_saut = "<br>".join(list_result)
-
                         # Display result in text edit
                         self.window_instance.textEdit.setText(list_result_saut)
-
                         # Display data results in tableview
                         # header table view
                         header = ['Nom de l\'ESXi (vmware) ou du Management Node (opca)', 'vCenter (vmware) ou Management Node (opca)']
-
                         # Create instance table view
                         table_model = MyTableModel.MyTableModel(results_query_search, header)
-
-                        # Count tab lines
-                        # print(table_model.rowCount(None))
-
-                        # Afficher la liste des data à mettre dans le tableau
-                        # print(table_model.mylist) # print(data_list)
-
                         self.window_instance.tableView.setModel(table_model)
                         # set color and style header
                         # stylesheet = "::section{Background-color:rgb(179, 224, 229);border-radius:14px;}"   # Pour ne pas avoir les bordures des cases du header
@@ -312,32 +270,16 @@ class Tools(QtWidgets.QWidget):
                         self.window_instance.tableView.resizeColumnsToContents()
                         # stretch the last column to the view so that the table view fit the layout
                         self.window_instance.tableView.horizontalHeader().setStretchLastSection(True)
-
                         delegate = AlignDelegate.AlignDelegate(self.window_instance.tableView)
                         # main_window.tableView.setItemDelegateForColumn(2, delegate)  # Pour Centrer le texte de la colonne id 2 (donc la troisième)
                         self.window_instance.tableView.setItemDelegate(delegate)  # for all columns
-
                         # enable sorting
                         self.window_instance.tableView.setSortingEnabled(True)
-
                         # main_window.statusBar.showMessage(f"Results : {str(nbr)} | OK : {str(nbr_result_ok)} | KO : {str(nbr_result_ko)}")
                         self.window_instance.statusBar.showMessage(f"Résultats : {str(nbr)}")
-
                         self.window_instance.progressBar.reset()
                         # self.window_instance.progressBar.hide()
-                else:
-                    self.window_instance.textEdit.setText(db_connection.message_error_connection_db)
-        elif search_choice == 'appli_name':
-            results_query_search = []
-            nbr_result_ko = 0
-            nbr_result_ok = 0
-            red_text = "<span style=\" color:#ff0000;\" >"
-            text_end = "</span>"
-            green_text = "<span style=\" color:#5ea149;\" >"
-            logging.debug(f"search_list: {search_list}")
-
-            with DatabaseGestion.DatabaseGestion() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
-                if db_connection.error_db_connection is None:
+                elif search_choice == 'Application':
                     if self.is_db_empty():
                         pass
                     else:
@@ -346,67 +288,48 @@ class Tools(QtWidgets.QWidget):
                         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                         if not search_list:
                             db_connection.sql_query_execute(f"""
-                                                                    SELECT IF(c.environment_name is null, \'N/A\', c.environment_name), v.serveur_name
-                                                                    FROM serveur_vmware as v 
-                                                                    LEFT JOIN serveur_cmdb as c 
-                                                                    ON(v.serveur_name = c.serveur_name)""")
-
-                            rows_vmware = db_connection.cursor.fetchall()
-
-                            db_connection.sql_query_execute(f"""
-                                                                    SELECT IF(c.environment_name is null, \'N/A\', c.environment_name), o.serveur_name
-                                                                    FROM serveur_opca as o 
-                                                                    LEFT JOIN serveur_cmdb as c 
-                                                                    ON(o.serveur_name = c.serveur_name)""")
-
-                            rows_opca = db_connection.cursor.fetchall()
-
-                            results_query_search.extend(rows_vmware)
-                            results_query_search.extend(rows_opca)
-
+                                select DISTINCT c.environment_name,
+                                       t.serveur_name
+                                from (
+                                  select serveur_name from serveur_cmdb union
+                                  select serveur_name from serveur_vmware union
+                                  select serveur_name from serveur_opca
+                                ) t
+                                left join serveur_cmdb c on c.serveur_name = t.serveur_name
+                                left join serveur_vmware v on v.serveur_name = t.serveur_name
+                                left join serveur_opca o on o.serveur_name = t.serveur_name
+                            """)
+                            results_query_search = db_connection.cursor.fetchall()
                         else:  # if search is not empty
                             search_list_len = len(search_list)
                             step_search = 0
                             self.window_instance.textEdit.setText("Recherche en cours...")
                             QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
-
                             # For each search string in list
                             for file_number_search, search_string in enumerate(search_list, 1):
                                 search_string = str.strip(search_string)  # delete spaces before and after the
                                 self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...")
-
                                 db_connection.sql_query_execute(f"""
-                                                                        SELECT IF(c.environment_name is null, \'N/A\', c.environment_name), v.serveur_name
-                                                                        FROM serveur_vmware as v 
-                                                                        LEFT JOIN serveur_cmdb as c 
-                                                                        ON(v.serveur_name = c.serveur_name) 
-                                                                        WHERE c.environment_name LIKE \'%{search_string}%\'""")
-
-                                rows_vmware = db_connection.cursor.fetchall()
-
-                                db_connection.sql_query_execute(f"""
-                                                                        SELECT IF(c.environment_name is null, \'N/A\', c.environment_name), o.serveur_name
-                                                                        FROM serveur_opca as o 
-                                                                        LEFT JOIN serveur_cmdb as c 
-                                                                        ON(o.serveur_name = c.serveur_name) 
-                                                                        WHERE c.environment_name LIKE \'%{search_string}%\'""")
-
-                                rows_opca = db_connection.cursor.fetchall()
-
-                                if not rows_opca and not rows_vmware:
+                                    select DISTINCT c.environment_name,
+                                           t.serveur_name
+                                    from (
+                                      select serveur_name from serveur_cmdb union
+                                      select serveur_name from serveur_vmware union
+                                      select serveur_name from serveur_opca
+                                    ) t
+                                    left join serveur_cmdb c on c.serveur_name = t.serveur_name
+                                    left join serveur_vmware v on v.serveur_name = t.serveur_name
+                                    left join serveur_opca o on o.serveur_name = t.serveur_name 
+                                    WHERE c.environment_name LIKE \'%{search_string}%\'
+                                """)
+                                rows_result_sql = db_connection.cursor.fetchall()
+                                if not rows_result_sql:
                                     nbr_result_ko += 1
                                     results_query_search.append((search_string, 'Non présent dans les exports'))
-
-                                if rows_vmware:
-                                    nbr_item_in_list = len(rows_vmware)
-                                    results_query_search.extend(rows_vmware)
+                                if rows_result_sql:
+                                    nbr_item_in_list = len(rows_result_sql)
+                                    results_query_search.extend(rows_result_sql)
                                     nbr_result_ok = nbr_result_ok + nbr_item_in_list
-
-                                if rows_opca:
-                                    nbr_item_in_list = len(rows_opca)
-                                    results_query_search.extend(rows_opca)
-                                    nbr_result_ok = nbr_result_ok + nbr_item_in_list
-
                                 if search_list_len > 1:  # To avoid having the progress bar when doing a search on only one item to not waste time
                                     # Update of the progress bar
                                     self.window_instance.progressBar.show()
@@ -417,40 +340,24 @@ class Tools(QtWidgets.QWidget):
                                         self.window_instance.statusBar.showMessage(pourcentage_text_1)
                                         self.window_instance.progressBar.setValue(between_pourcentage_1)
                                         step_search = (file_number_search * 100 - 1) // search_list_len
-
                         nbr = 0  # To get number of results
                         list_result = []
                         list_result_saut = []
-
-                        # print(results_query_search)
-
                         for nbr, result_query_search in enumerate(results_query_search, 1):
                             # print(result_query_search)
                             environment_name, serveur_name = result_query_search  # unpacking
-
                             if serveur_name == 'Non présent dans les exports':
                                 list_result.append(f"{environment_name} --> {red_text}{serveur_name}{text_end}")
                             else:
                                 list_result.append(f"{environment_name} --> {green_text}{serveur_name}{text_end}")
-
                             list_result_saut = "<br>".join(list_result)
-
                         # Display result in text edit
                         self.window_instance.textEdit.setText(list_result_saut)
-
                         # Display data results in tableview
                         # header table view
-                        header = ['Application', 'Nom du serveur']
-
+                        header = ['Application (CMDB)', 'Nom']
                         # Create instance table view
                         table_model = MyTableModel.MyTableModel(results_query_search, header)
-
-                        # Count tab lines
-                        # print(table_model.rowCount(None))
-
-                        # Afficher la liste des data à mettre dans le tableau
-                        # print(table_model.mylist) # print(data_list)
-
                         self.window_instance.tableView.setModel(table_model)
                         # set color and style header
                         # stylesheet = "::section{Background-color:rgb(179, 224, 229);border-radius:14px;}"   # Pour ne pas avoir les bordures des cases du header
@@ -464,20 +371,16 @@ class Tools(QtWidgets.QWidget):
                         self.window_instance.tableView.resizeColumnsToContents()
                         # stretch the last column to the view so that the table view fit the layout
                         self.window_instance.tableView.horizontalHeader().setStretchLastSection(True)
-
                         delegate = AlignDelegate.AlignDelegate(self.window_instance.tableView)
                         # main_window.tableView.setItemDelegateForColumn(2, delegate)  # Pour Centrer le texte de la colonne id 2 (donc la troisième)
                         self.window_instance.tableView.setItemDelegate(delegate)  # for all columns
-
                         # enable sorting
                         self.window_instance.tableView.setSortingEnabled(True)
-
                         self.window_instance.statusBar.showMessage(f"Résultats : {str(nbr)} | OK : {str(nbr_result_ok)} | KO : {str(nbr_result_ko)}")
-
                         self.window_instance.progressBar.reset()
                         # self.window_instance.progressBar.hide()
-                else:
-                    self.window_instance.textEdit.setText(db_connection.message_error_connection_db)
+            else:
+                self.window_instance.textEdit.setText(db_connection.message_error_connection_db)
 
     def is_file_authorized(self, file):
         """ If the file is in the list of authorized_files, we copy the file
@@ -495,8 +398,6 @@ class Tools(QtWidgets.QWidget):
         return file_authorized
 
     def list_exports(self, export_type):
-        files_authorized_list = []
-        files_not_authorized_list = []
         # Check if there are any exports in the folder concerned
         if not os.listdir(fr"{constantes.EXPORTS_DIR}\exports_{export_type}"):
             self.window_instance.textEdit.setText(f"Le répertoire des exports exports_{export_type} est vide.")
@@ -508,6 +409,8 @@ class Tools(QtWidgets.QWidget):
                 for file in files:
                     files_paths_list.append(os.path.join(root, file))
             number_authorized = number_not_authorized = 0
+            files_authorized_list = []
+            files_not_authorized_list = []
             for file_path in files_paths_list:
                 file = os.path.basename(file_path)
                 file_is_authorized = self.is_file_authorized(file)
