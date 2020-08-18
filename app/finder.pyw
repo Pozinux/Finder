@@ -205,10 +205,10 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         elif export_type == "cmdb":
             self.result_folder_cmdb = f"Dernières modifications des exports {export_type} : {str(last_modified_date)}"
         elif export_type == "cmdb_all":
-            self.result_folder_cmdb = f"Dernières modifications des exports {export_type} : {str(last_modified_date)}"
+            self.result_folder_cmdb_all = f"Dernières modifications des exports {export_type} : {str(last_modified_date)}"
 
     def display_exports_folders_dates(self):
-        self.exports_folders_dates = self.result_folder_vmware + "\n\n" + self.result_folder_opca + "\n\n" + self.result_folder_cmdb
+        self.exports_folders_dates = self.result_folder_vmware + "\n\n" + self.result_folder_opca + "\n\n" + self.result_folder_cmdb + "\n\n" + self.result_folder_cmdb_all
         self.textEdit_2.setText(f"{self.exports_folders_dates}")
 
     @staticmethod
