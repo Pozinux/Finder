@@ -164,8 +164,8 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.files_renamed = []
         self.rename_imported_files_to_authorized_files("authorized_files_vmware", "vmware")
         self.rename_imported_files_to_authorized_files("authorized_files_opca", "opca")
-        # self.rename_imported_files_to_authorized_files("authorized_files_cmdb", "cmdb")
-        # self.rename_imported_files_to_authorized_files("authorized_files_cmdb_all", "cmdb_all")
+        self.rename_imported_files_to_authorized_files("authorized_files_cmdb", "cmdb")
+        self.rename_imported_files_to_authorized_files("authorized_files_cmdb_all", "cmdb_all")
 
     def rename_imported_files_to_authorized_files(self, section_ini_authorized_files, export_type):
         authorized_files_parser = configparser.ConfigParser()
