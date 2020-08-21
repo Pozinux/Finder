@@ -66,7 +66,7 @@ class Tools(QtWidgets.QWidget):
                                            coalesce(c.device_type, ca.device_type, 'N/A') device_type,
                                            coalesce(c.operational_status, ca.operational_status, 'N/A') operational_status,
                                            coalesce(c.system_type, ca.system_type, 'N/A') system_type,
-                                            coalesce(c.asset, 'N/A') asset
+                                           coalesce(c.asset, 'N/A') asset
                                     from (
                                       select upper(serveur_name) serveur_name from serveur_cmdb_all union
                                       select upper(serveur_name) serveur_name from serveur_cmdb union
@@ -96,7 +96,7 @@ class Tools(QtWidgets.QWidget):
                                            coalesce(c.device_type, ca.device_type, 'N/A') device_type,
                                            coalesce(c.operational_status, ca.operational_status, 'N/A') operational_status,
                                            coalesce(c.system_type, ca.system_type, 'N/A') system_type,
-                                           c.asset
+                                           coalesce(c.asset, 'N/A') asset
                                     from (
                                       select upper(serveur_name) serveur_name from serveur_cmdb_all union
                                       select upper(serveur_name) serveur_name from serveur_cmdb union
