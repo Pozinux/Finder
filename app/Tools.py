@@ -60,13 +60,13 @@ class Tools(QtWidgets.QWidget):
                         if not search_list:
                             db_connection.sql_query_execute(f"""
                                     select DISTINCT t.serveur_name,
-                                           coalesce(v.management_name, o.management_name) management_name,
-                                           coalesce(v.dns_name, o.dns_name) dns_name,
-                                           coalesce(c.environment_name, ca.environment_name) environment_name,
-                                           coalesce(c.device_type, ca.device_type) device_type,
-                                           coalesce(c.operational_status, ca.operational_status) operational_status,
-                                           coalesce(c.system_type, ca.system_type) system_type,
-                                           c.asset
+                                           coalesce(v.management_name, o.management_name, 'N/A') management_name,
+                                           coalesce(v.dns_name, o.dns_name, 'N/A') dns_name,
+                                           coalesce(c.environment_name, ca.environment_name, 'N/A') environment_name,
+                                           coalesce(c.device_type, ca.device_type, 'N/A') device_type,
+                                           coalesce(c.operational_status, ca.operational_status, 'N/A') operational_status,
+                                           coalesce(c.system_type, ca.system_type, 'N/A') system_type,
+                                            coalesce(c.asset, 'N/A') asset
                                     from (
                                       select upper(serveur_name) serveur_name from serveur_cmdb_all union
                                       select upper(serveur_name) serveur_name from serveur_cmdb union
@@ -90,12 +90,12 @@ class Tools(QtWidgets.QWidget):
                                 self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...") 
                                 db_connection.sql_query_execute(f"""
                                 select DISTINCT t.serveur_name,
-                                           coalesce(v.management_name, o.management_name) management_name,
-                                           coalesce(v.dns_name, o.dns_name) dns_name,
-                                           coalesce(c.environment_name, ca.environment_name) environment_name,
-                                           coalesce(c.device_type, ca.device_type) device_type,
-                                           coalesce(c.operational_status, ca.operational_status) operational_status,
-                                           coalesce(c.system_type, ca.system_type) system_type,
+                                           coalesce(v.management_name, o.management_name, 'N/A') management_name,
+                                           coalesce(v.dns_name, o.dns_name, 'N/A') dns_name,
+                                           coalesce(c.environment_name, ca.environment_name, 'N/A') environment_name,
+                                           coalesce(c.device_type, ca.device_type, 'N/A') device_type,
+                                           coalesce(c.operational_status, ca.operational_status, 'N/A') operational_status,
+                                           coalesce(c.system_type, ca.system_type, 'N/A') system_type,
                                            c.asset
                                     from (
                                       select upper(serveur_name) serveur_name from serveur_cmdb_all union
@@ -288,7 +288,7 @@ class Tools(QtWidgets.QWidget):
                         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
                         if not search_list:
                             db_connection.sql_query_execute(f"""
-                                select DISTINCT c.environment_name,
+                                select DISTINCT ifnull(c.environment_name, 'N/A'),
                                        t.serveur_name
                                 from (
                                   select serveur_name from serveur_cmdb union

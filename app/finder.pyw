@@ -224,9 +224,8 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
                 dict_authorized_files[authorized_files_item[0]] = authorized_files_item[1]
         else:
             raise Exception(f'Error from finder file : Section {section_ini_authorized_files} not found in the {constantes.CONFIG_AUTHORIZED_FILES_INI} file.')
-        authorized_files_source_list = list(dict_authorized_files.values())
         # print(self.authorized_files_source_list)
-        return authorized_files_source_list
+        return list(dict_authorized_files.values())
 
     def reset_progressbar_statusbar(self):
         self.progressBar.reset()
@@ -331,13 +330,13 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
 
                 if export_type == "opca":
                     df = pandas.read_csv(file_path_authorized, sep=';')
-
                     # Add a column to the dataframe
                     df['DNS Name'] = "N/A"
                     # Add a column to the dataframe
                     df['management'] = file_name_authorized
                     # The dataframe will contains only these colums
                     df = df[["Machine Virtuelle", "DNS Name", "management", "Compute Node"]]
+
                 elif export_type == "vmware":
                     df = pandas.read_excel(file_path_authorized)
                     # Add a column to the dataframe
@@ -345,7 +344,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
                     # The dataframe will contains only these colums
                     df = df[["VM", "DNS Name", "management", "Host"]]
 
-                df = df.where((pandas.notnull(df)), 'N/A')  # Remplacer les 'nan' (générés par panda quand il n'y a pas de valeur dans la case excel) par des 'N/A' sinon SQL traitera les 'nan' comme des '0'
+                # df = df.where((pandas.notnull(df)), 'N/A')  # Remplacer les 'nan' (générés par panda quand il n'y a pas de valeur dans la case excel) par des 'N/A' sinon SQL traitera les 'nan' comme des '0'
                 list_data_temp = df.values.tolist()
                 data_list.extend(list_data_temp)
             logging.debug(data_list)  # Donne une liste de listes
@@ -373,6 +372,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
                     # The dataframe will contains only these colums
                     df_cmdb = df_cmdb[["ci6_name", "ci2_name", "ci6_u_device_type", "ci6_operational_status", "ci6_sys_class_name", "ci6_asset_tag"]]
 
+                # df_cmdb = df_cmdb.where((pandas.notnull(df_cmdb)), 'N/A')  # Remplacer les 'nan' (générés par panda quand il n'y a pas de valeur dans la case excel) par des 'N/A' sinon SQL traitera les 'nan' comme des '0'
                 list_data_cmdb_temp = df_cmdb.values.tolist()
                 # print(list_data_cmdb_temp)
                 list_data_cmdb.extend(list_data_cmdb_temp)
@@ -402,6 +402,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
                     # The dataframe will contains only these colums
                     df_cmdb_all = df_cmdb_all[["name", "u_platform_type", "u_device_type", "operational_status", "sys_class_name"]]
 
+                # df_cmdb_all = df_cmdb_all.where((pandas.notnull(df_cmdb_all)), 'N/A')  # Remplacer les 'nan' (générés par panda quand il n'y a pas de valeur dans la case excel) par des 'N/A' sinon SQL traitera les 'nan' comme des '0'
                 list_data_cmdb_all_temp = df_cmdb_all.values.tolist()
                 # print(list_data_cmdb_all_temp)
                 list_data_cmdb_all.extend(list_data_cmdb_all_temp)
