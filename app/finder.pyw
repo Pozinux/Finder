@@ -48,7 +48,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         # Put the focus of the mouse on the input text area
         self.lineEdit.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.lineEdit.setFocus()
-        # self.showMaximized()  # Pour ouvrir au démarrage en taille max la fenetre principale
+        self.showMaximized()  # Pour ouvrir au démarrage en taille max la fenetre principale
 
         self.setup_connections()  # Establish connections between widgets and functions
         self.setup_keyboard_shortcuts()  # Establish connections between keys and functions
