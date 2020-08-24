@@ -16,6 +16,7 @@ class Tools(QtWidgets.QWidget):
     def __init__(self, window_instance):
         self.window_instance = window_instance
         super(Tools, self).__init__()
+        self.list_result_saut = []
 
     def is_db_empty(self):
         with DatabaseGestionSqlite.DatabaseGestionSqlite() as db_connection:  # with allows you to use a context manager that will automatically call the disconnect function when you exit the scope
@@ -134,18 +135,22 @@ class Tools(QtWidgets.QWidget):
                                         step_search = (file_number_search * 100 - 1) // search_list_len
                         nbr = 0  # To get number of results
                         list_result = []
-                        list_result_saut = []
+                        #list_result_saut = []
 
                     for nbr, result_query_search in enumerate(results_query_search, 1):
                         #  print(result_query_search)
                         serveur_name, management_name, dns_name, environment_name, device_type, operational_status, system_type, asset = result_query_search  # unpacking
-                        if management_name == 'Non présent dans les exports':
-                            list_result.append(f"{serveur_name} --> {red_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type} --> {operational_status} --> {system_type} --> {asset}")
-                        else:
-                            list_result.append(f"{serveur_name} --> {green_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type} --> {operational_status} --> {system_type} --> {asset}")
-                        list_result_saut = "<br>".join(list_result)
+                        # if management_name == 'Non présent dans les exports':
+                        #     list_result.append(f"{serveur_name} --> {red_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type} --> {operational_status} --> {system_type} --> {asset}")
+                        # else:
+                        #     list_result.append(f"{serveur_name} --> {green_text}{management_name}{text_end} --> {dns_name} --> {environment_name} --> {device_type} --> {operational_status} --> {system_type} --> {asset}")
+
+                        list_result.append(f"{serveur_name};{management_name};{dns_name};{environment_name};{device_type};{operational_status};{system_type};{asset}")
+                        self.list_result_saut = "\n".join(list_result)
+                    #print(self.list_result_saut)
                     # Display result in text edit
-                    self.window_instance.textEdit.setText(list_result_saut)
+                    # self.window_instance.textEdit.setText(list_result_saut)
+                    self.window_instance.textEdit.setText("CTRL+C pour copier les données des cellules sélectionnées.\nCTRL+A pour sélectionner toutes les données.\nMenu \"Fichier > Exporter le résultat\" pour exporter le résultat en CSV\nCliquer sur les noms des colonnes pour trier")
                     # Display data results in tableview
                     # header table view
                     header = ['Nom', 'vCenter ou ESXi (vmware), Management Node (opca)', 'Nom DNS (vmware)', 'Environnement/Application (CMDB)', 'Type (CMDB)', 'Status opérationnel (CMDB)', 'Type de Système (CMDB)', 'Asset (CMDB)']
@@ -242,17 +247,20 @@ class Tools(QtWidgets.QWidget):
                         results_query_search = [x for x in results_query_search if "0" not in x]  # Remove the results that is "0" (for opca data)
                         nbr = 0  # To get number of results
                         list_result = []
-                        list_result_saut = []
+                        # list_result_saut = []
                         for nbr, result_query_search in enumerate(results_query_search, 1):
                             serveur_name, management_name = result_query_search  # unpacking
-                            if management_name == 'Non présent dans les exports':
-                                list_result.append(f"{serveur_name} --> {red_text}{management_name}{text_end}")
-                            else:
-                                list_result.append(f"{serveur_name} --> {green_text}{management_name}{text_end}")
-                            list_result_saut = "<br>".join(list_result)
-                        # Display result in text edit
-                        self.window_instance.textEdit.setText(list_result_saut)
-                        # Display data results in tableview
+                            # if management_name == 'Non présent dans les exports':
+                            #     list_result.append(f"{serveur_name} --> {red_text}{management_name}{text_end}")
+                            # else:
+                            #     list_result.append(f"{serveur_name} --> {green_text}{management_name}{text_end}")
+                            list_result.append(f"{serveur_name};{management_name}")
+                            self.list_result_saut = "\n".join(list_result)
+                            # print(self.list_result_saut)
+                            # Display result in text edit
+                            # self.window_instance.textEdit.setText(list_result_saut)
+                            self.window_instance.textEdit.setText("CTRL+C pour copier les données des cellules sélectionnées.\nCTRL+A pour sélectionner toutes les données.\nMenu \"Fichier > Exporter le résultat\" pour exporter le résultat en CSV\nCliquer sur les noms des colonnes pour trier")
+                            # Display data results in tableview
                         # header table view
                         header = ['Nom de l\'ESXi (vmware) ou du Management Node (opca)', 'vCenter (vmware) ou Management Node (opca)']
                         # Create instance table view
@@ -342,18 +350,21 @@ class Tools(QtWidgets.QWidget):
                                         step_search = (file_number_search * 100 - 1) // search_list_len
                         nbr = 0  # To get number of results
                         list_result = []
-                        list_result_saut = []
+                        # list_result_saut = []
                         for nbr, result_query_search in enumerate(results_query_search, 1):
                             # print(result_query_search)
                             environment_name, serveur_name = result_query_search  # unpacking
-                            if serveur_name == 'Non présent dans les exports':
-                                list_result.append(f"{environment_name} --> {red_text}{serveur_name}{text_end}")
-                            else:
-                                list_result.append(f"{environment_name} --> {green_text}{serveur_name}{text_end}")
-                            list_result_saut = "<br>".join(list_result)
-                        # Display result in text edit
-                        self.window_instance.textEdit.setText(list_result_saut)
-                        # Display data results in tableview
+                            # if serveur_name == 'Non présent dans les exports':
+                            #     list_result.append(f"{environment_name} --> {red_text}{serveur_name}{text_end}")
+                            # else:
+                            #     list_result.append(f"{environment_name} --> {green_text}{serveur_name}{text_end}")
+                            list_result.append(f"{environment_name};{serveur_name}")
+                            self.list_result_saut = "\n".join(list_result)
+                            # print(self.list_result_saut)
+                            # Display result in text edit
+                            # self.window_instance.textEdit.setText(list_result_saut)
+                            self.window_instance.textEdit.setText("CTRL+C pour copier les données des cellules sélectionnées.\nCTRL+A pour sélectionner toutes les données.\nMenu \"Fichier > Exporter le résultat\" pour exporter le résultat en CSV\nCliquer sur les noms des colonnes pour trier")
+                            # Display data results in tableview
                         # header table view
                         header = ['Application (CMDB)', 'Nom']
                         # Create instance table view

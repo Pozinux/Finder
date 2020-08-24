@@ -106,7 +106,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         refresh_bdd_cmdb = QtWidgets.QAction(QtGui.QIcon('icons/refresh.png'), '&Mise à jour CMDB APPLI', self)
         refresh_bdd_cmdb.setStatusTip("Update the database from the CMDB exports that are present in the exports folder")
         refresh_bdd_cmdb.triggered.connect(lambda: self.update_db("cmdb"))
-        
+
         # Menu fichier > Refesh BDD CMDB ALL
         refresh_bdd_cmdb_all = QtWidgets.QAction(QtGui.QIcon('icons/refresh.png'), '&Mise à jour CMDB ALL', self)
         refresh_bdd_cmdb_all.setStatusTip("Update the database from the CMDB ALL exports that are present in the exports folder")
@@ -131,7 +131,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         list_exports_action_cmdb = QtWidgets.QAction(QtGui.QIcon('icons/list.png'), '&Lister les exports CMDB', self)
         list_exports_action_cmdb.setStatusTip("List the CMDB export files (.csv) present")
         list_exports_action_cmdb.triggered.connect(lambda: tools_instance.list_exports("cmdb"))
-        
+
         # Menu Parameters > List the CMDB ALL export files present
         list_exports_action_cmdb_all = QtWidgets.QAction(QtGui.QIcon('icons/list.png'), '&Lister les exports CMDB ALL', self)
         list_exports_action_cmdb_all.setStatusTip("List the CMDB ALL export files (.csv) present")
@@ -255,8 +255,11 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.textEdit.setText(f"Fichiers d'exports autorisés à être importés dans la base :\n\n{str(authorized_files_source_list_cr)}")
 
     def export_result(self):
-        textedit_content = self.textEdit.toPlainText()  # We retrieve the content of the note
-        textedit_content = textedit_content.replace(' --> ', ';')  # We transform it into.csv with ; as a separator
+        textedit_content = tools_instance.list_result_saut
+        #textedit_content = self.textEdit.toPlainText()  # We retrieve the content of the note
+        #textedit_content = textedit_content.replace(' --> ', ';')  # We transform it into.csv with ; as a separator
+
+        #print(tools_instance.list_result_saut)
 
         save_path = QtWidgets.QFileDialog.getExistingDirectory()
         logging.debug(f"selected_folder: {save_path}")
@@ -379,7 +382,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
                 # print(list_data_cmdb_temp)
                 list_data_cmdb.extend(list_data_cmdb_temp)
                 # print(list_data_cmdb)
-                
+
         elif export_type == "cmdb_all":
             # Create list of list from cmdb export file
             # print(files_paths_authorized_list)
@@ -507,6 +510,7 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
             stream = io.StringIO()
             csv.writer(stream).writerows(table)
             QtWidgets.qApp.clipboard().setText(stream.getvalue())
+
 
 # MAIN
 
