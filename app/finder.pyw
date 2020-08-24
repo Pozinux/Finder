@@ -1,4 +1,6 @@
 import configparser
+import csv
+import io
 import logging
 import os.path
 import pathlib
@@ -475,6 +477,8 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         QtWidgets.QShortcut(QtGui.QKeySequence('Enter'), self, self.search)
         # We create a shortcut for the ENTER key on the keyboard that will launch the search
         QtWidgets.QShortcut(QtGui.QKeySequence('Return'), self, self.search)
+        # We create a shortcut for the COPY CTRL+C keys on the keyboard
+        QtWidgets.QShortcut(QtGui.QKeySequence.Copy, self, self.copy_selection)
 
     def search(self):
         self.reset_progressbar_statusbar()
@@ -488,6 +492,21 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
         self.reset_progressbar_statusbar()
         self.window_import_list.show()
 
+    def copy_selection(self):
+        selection = self.tableView.selectedIndexes()
+        if selection:
+            rows = sorted(index.row() for index in selection)
+            columns = sorted(index.column() for index in selection)
+            rowcount = rows[-1] - rows[0] + 1
+            colcount = columns[-1] - columns[0] + 1
+            table = [[''] * colcount for _ in range(rowcount)]
+            for index in selection:
+                row = index.row() - rows[0]
+                column = index.column() - columns[0]
+                table[row][column] = index.data()
+            stream = io.StringIO()
+            csv.writer(stream).writerows(table)
+            QtWidgets.qApp.clipboard().setText(stream.getvalue())
 
 # MAIN
 
