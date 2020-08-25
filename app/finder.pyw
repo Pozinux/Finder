@@ -26,9 +26,9 @@ file_folder = "folder2"
 
 
 # Class main graphical window
-class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
+class Window(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
-        super(Creator, self).__init__()
+        super(Window, self).__init__()
 
         # --- Récupérer les infos des listes des fichiers autorisés
         # Liste full de toutes les fichiers autorisés
@@ -515,6 +515,6 @@ class Creator(QtWidgets.QMainWindow, Ui_MainWindow):
 # MAIN
 
 app = QtWidgets.QApplication([])
-main_window = Creator()
+main_window = Window()
 tools_instance = Tools(main_window)
 app.exec_()
