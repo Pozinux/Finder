@@ -74,6 +74,9 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.list_authorized_files()  # Génére la liste des fichiers authorisés à l'ouverture de l'appli afin de pouvoir lister les exports (dans paramètres)
 
+    def __str__(self):
+        return f"Liste des fichiers authorisés : {self.authorized_files_source_list}"
+
     def menu_bar(self):
         # Menu File > exit
         exit_action = QtWidgets.QAction(QtGui.QIcon('icons/exit.png'), '&Exit', self)
