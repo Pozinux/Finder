@@ -71,7 +71,7 @@ class MyTableModel(QtCore.QAbstractTableModel):
                     column = index.column() - columns[0]
                     table[row][column] = index.data()
                 stream = io.StringIO()
-                csv.writer(stream).writerows(table)
+                csv.writer(stream, delimiter=';').writerows(table)  # Si on ne précise pas le delimiter, on aura des ","
                 QtWidgets.qApp.clipboard().setText(stream.getvalue())
             return True
         return super(QtCore.QAbstractTableModel, self).eventFilter(source, event)
