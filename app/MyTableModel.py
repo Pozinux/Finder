@@ -30,7 +30,7 @@ class MyTableModel(QtCore.QAbstractTableModel):
         if not index.isValid():
             return None
 
-        if role == QtCore.Qt.BackgroundRole and data == "Non présent dans les exports":
+        if role == QtCore.Qt.BackgroundRole and data == "Non present dans les exports":
             #  if role == QtCore.Qt.BackgroundRole and (data == "VM Name not in RVTools or OPCA exports." or data == "DNS Name or TAGS not in RVTools or OPCA exports."):
             return QtGui.QColor("orange")  # return QBrush(QtCore.Qt.red) # fonctionne aussi
 
