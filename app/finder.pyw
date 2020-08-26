@@ -482,7 +482,7 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
         # We create a shortcut for the ENTER key on the keyboard that will launch the search
         QtWidgets.QShortcut(QtGui.QKeySequence('Return'), self, self.search)
         # We create a shortcut for the COPY CTRL+C keys on the keyboard
-        QtWidgets.QShortcut(QtGui.QKeySequence.Copy, self, self.copy_selection)
+        # QtWidgets.QShortcut(QtGui.QKeySequence.Copy, self, self.copy_selection)
 
     def search(self):
         self.reset_progressbar_statusbar()
@@ -496,15 +496,15 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
         self.reset_progressbar_statusbar()
         self.window_import_list.show()
 
-    def copy_selection(self):
-        # Permettre de copier coller avec CTRL+C le text de du textEdit.
-        # print("CTRL+C finder.pyw detected")
-        cursor = self.textEdit.textCursor()  # Mettre dans la variable cursor le text sélectionné dans le textEdit appelé textEdit
-        # print('%s' % (cursor.selectedText())) Afficher en console ce qui est sélectionner par la souris (curseur)
-        cb = app.clipboard()
-        # print(f"Dans le clipboard : {clipboard.text()}") # text() retrieves actuel text from clipboard
-        cb.clear(mode=cb.Clipboard)  # Effacer ce qu'il y a dans le Clipboard
-        cb.setText(cursor.selectedText(), mode=cb.Clipboard)  # Mettre dans le clipboard le text récupéré dans la variable
+    # def copy_selection(self):
+    #     # Permettre de copier coller avec CTRL+C le text de du textEdit.
+    #     print("CTRL+C finder.pyw detected")
+    #     cursor = self.textEdit.textCursor()  # Mettre dans la variable cursor le text sélectionné dans le textEdit appelé textEdit
+    #     # print('%s' % (cursor.selectedText())) Afficher en console ce qui est sélectionner par la souris (curseur)
+    #     cb = app.clipboard()
+    #     # print(f"Dans le clipboard : {clipboard.text()}") # text() retrieves actuel text from clipboard
+    #     cb.clear(mode=cb.Clipboard)  # Effacer ce qu'il y a dans le Clipboard
+    #     cb.setText(cursor.selectedText(), mode=cb.Clipboard)  # Mettre dans le clipboard le text récupéré dans la variable
 
 
 # MAIN
