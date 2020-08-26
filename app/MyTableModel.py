@@ -1,13 +1,16 @@
+import csv
+import io
 import operator
 
-from PySide2 import QtGui, QtCore
+from PySide2 import QtGui, QtCore, QtWidgets
 
 
 # Class for tableview
 
 class MyTableModel(QtCore.QAbstractTableModel):
-    def __init__(self, mylist, header, parent=None, *args):
+    def __init__(self, mylist, header, parent=None, *args, window_instance):
         QtCore.QAbstractTableModel.__init__(self, parent, *args)
+        self.window_instance = window_instance
         self.mylist = mylist
         self.header = header
 
@@ -50,3 +53,25 @@ class MyTableModel(QtCore.QAbstractTableModel):
         if order == QtCore.Qt.DescendingOrder:
             self.mylist.reverse()
         self.emit(QtCore.SIGNAL("layoutChanged()"))
+
+    # add event filter
+    def eventFilter(self, source, event):
+        if event.type() == QtCore.QEvent.KeyPress and event.matches(QtGui.QKeySequence.Copy):
+            # print("CTRL+C detected")
+            selection = self.window_instance.tableView.selectedIndexes()
+            # print(selection) # ---> Si je sélectionne la première colonne (0) deuxième ligne (1) => [<PySide2.QtCore.QModelIndex(0,1,0x0,MyTableModel(0xbca0e90))  at 0x0000000009F1BD08>]
+            if selection:
+                rows = sorted(index.row() for index in selection)
+                columns = sorted(index.column() for index in selection)
+                rowcount = rows[-1] - rows[0] + 1
+                colcount = columns[-1] - columns[0] + 1
+                table = [[''] * colcount for _ in range(rowcount)]
+                for index in selection:
+                    row = index.row() - rows[0]
+                    column = index.column() - columns[0]
+                    table[row][column] = index.data()
+                stream = io.StringIO()
+                csv.writer(stream).writerows(table)
+                QtWidgets.qApp.clipboard().setText(stream.getvalue())
+            return True
+        return super(QtCore.QAbstractTableModel, self).eventFilter(source, event)

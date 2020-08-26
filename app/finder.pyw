@@ -256,10 +256,10 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def export_result(self):
         textedit_content = tools_instance.list_result_saut
-        #textedit_content = self.textEdit.toPlainText()  # We retrieve the content of the note
-        #textedit_content = textedit_content.replace(' --> ', ';')  # We transform it into.csv with ; as a separator
+        # textedit_content = self.textEdit.toPlainText()  # We retrieve the content of the note
+        # textedit_content = textedit_content.replace(' --> ', ';')  # We transform it into.csv with ; as a separator
 
-        #print(tools_instance.list_result_saut)
+        # print(tools_instance.list_result_saut)
 
         save_path = QtWidgets.QFileDialog.getExistingDirectory()
         logging.debug(f"selected_folder: {save_path}")
@@ -481,7 +481,7 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
         # We create a shortcut for the ENTER key on the keyboard that will launch the search
         QtWidgets.QShortcut(QtGui.QKeySequence('Return'), self, self.search)
         # We create a shortcut for the COPY CTRL+C keys on the keyboard
-        QtWidgets.QShortcut(QtGui.QKeySequence.Copy, self, self.copy_selection)
+        # QtWidgets.QShortcut(QtGui.QKeySequence.Copy, self, self.copy_selection)
 
     def search(self):
         self.reset_progressbar_statusbar()
@@ -494,22 +494,6 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
         self.window_import_list = ImportList(main_window, tools_instance)  # Je fourni à la classe ImportList l'instance main_window en paramètre
         self.reset_progressbar_statusbar()
         self.window_import_list.show()
-
-    def copy_selection(self):
-        selection = self.tableView.selectedIndexes()
-        if selection:
-            rows = sorted(index.row() for index in selection)
-            columns = sorted(index.column() for index in selection)
-            rowcount = rows[-1] - rows[0] + 1
-            colcount = columns[-1] - columns[0] + 1
-            table = [[''] * colcount for _ in range(rowcount)]
-            for index in selection:
-                row = index.row() - rows[0]
-                column = index.column() - columns[0]
-                table[row][column] = index.data()
-            stream = io.StringIO()
-            csv.writer(stream).writerows(table)
-            QtWidgets.qApp.clipboard().setText(stream.getvalue())
 
 
 # MAIN

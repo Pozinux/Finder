@@ -1,3 +1,5 @@
+import csv
+import io
 import logging
 import os
 import time
@@ -15,7 +17,7 @@ import constantes
 class Tools(QtWidgets.QWidget):
     def __init__(self, window_instance):
         self.window_instance = window_instance
-        super(Tools, self).__init__()
+        # super(Tools, self).__init__()
         self.list_result_saut = []
 
     def is_db_empty(self):
@@ -38,9 +40,9 @@ class Tools(QtWidgets.QWidget):
         results_query_search = []
         nbr_result_ko = 0
         nbr_result_ok = 0
-        red_text = "<span style=\" color:#ff0000;\" >"
-        text_end = "</span>"
-        green_text = "<span style=\" color:#5ea149;\" >"
+        # red_text = "<span style=\" color:#ff0000;\" >"
+        # text_end = "</span>"
+        # green_text = "<span style=\" color:#5ea149;\" >"
         search_choice = self.window_instance.comboBox.currentText()
         self.window_instance.textEdit.setText("Connexion à la base de données...")
         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
@@ -88,7 +90,7 @@ class Tools(QtWidgets.QWidget):
                             # For each search string in list
                             for file_number_search, search_string in enumerate(search_list, 1):
                                 search_string = str.strip(search_string)  # delete spaces before and after the
-                                self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...") 
+                                self.window_instance.textEdit.setText(f"Recherche en cours de {search_string}...")
                                 db_connection.sql_query_execute(f"""
                                 select DISTINCT t.serveur_name,
                                            coalesce(v.management_name, o.management_name, 'N/A') management_name,
@@ -135,7 +137,7 @@ class Tools(QtWidgets.QWidget):
                                         step_search = (file_number_search * 100 - 1) // search_list_len
                         nbr = 0  # To get number of results
                         list_result = []
-                        #list_result_saut = []
+                        # list_result_saut = []
 
                     for nbr, result_query_search in enumerate(results_query_search, 1):
                         #  print(result_query_search)
@@ -147,7 +149,7 @@ class Tools(QtWidgets.QWidget):
 
                         list_result.append(f"{serveur_name};{management_name};{dns_name};{environment_name};{device_type};{operational_status};{system_type};{asset}")
                         self.list_result_saut = "\n".join(list_result)
-                    #print(self.list_result_saut)
+                    # print(self.list_result_saut)
                     # Display result in text edit
                     # self.window_instance.textEdit.setText(list_result_saut)
                     self.window_instance.textEdit.setText("CTRL+C pour copier les données des cellules sélectionnées.\nCTRL+A pour sélectionner toutes les données.\nMenu \"Fichier > Exporter le résultat\" pour exporter le résultat en CSV\nCliquer sur les noms des colonnes pour trier")
@@ -155,8 +157,10 @@ class Tools(QtWidgets.QWidget):
                     # header table view
                     header = ['Nom', 'vCenter ou ESXi (vmware), Management Node (opca)', 'Nom DNS (vmware)', 'Environnement/Application (CMDB)', 'Type (CMDB)', 'Status opérationnel (CMDB)', 'Type de Système (CMDB)', 'Asset (CMDB)']
                     # Create instance table view
-                    table_model = MyTableModel.MyTableModel(results_query_search, header)
+                    table_model = MyTableModel.MyTableModel(results_query_search, header, window_instance=self.window_instance)
                     self.window_instance.tableView.setModel(table_model)
+                    # install event filter pour pouvoir récupérer un évenement d'appui de CTRL+C (copy) quand on a sélectionné des cellules
+                    self.window_instance.tableView.installEventFilter(table_model)
                     # set color and style header
                     # stylesheet = "::section{Background-color:rgb(179, 224, 229);border-radius:14px;}"   # Pour ne pas avoir les bordures des cases du header
                     stylesheet = "::section{Background-color:rgb(179, 224, 229)}"  # Couleur bleu ciel pour l'entête du tableau
@@ -264,8 +268,10 @@ class Tools(QtWidgets.QWidget):
                         # header table view
                         header = ['Nom de l\'ESXi (vmware) ou du Management Node (opca)', 'vCenter (vmware) ou Management Node (opca)']
                         # Create instance table view
-                        table_model = MyTableModel.MyTableModel(results_query_search, header)
+                        table_model = MyTableModel.MyTableModel(results_query_search, header, window_instance=self.window_instance)
                         self.window_instance.tableView.setModel(table_model)
+                        # install event filter pour pouvoir récupérer un évenement d'appui de CTRL+C (copy) quand on a sélectionné des cellules
+                        self.window_instance.tableView.installEventFilter(table_model)
                         # set color and style header
                         # stylesheet = "::section{Background-color:rgb(179, 224, 229);border-radius:14px;}"   # Pour ne pas avoir les bordures des cases du header
                         stylesheet = "::section{Background-color:rgb(179, 224, 229)}"  # Couleur bleu ciel pour l'entête du tableau
@@ -368,8 +374,10 @@ class Tools(QtWidgets.QWidget):
                         # header table view
                         header = ['Application (CMDB)', 'Nom']
                         # Create instance table view
-                        table_model = MyTableModel.MyTableModel(results_query_search, header)
+                        table_model = MyTableModel.MyTableModel(results_query_search, header, window_instance=self.window_instance)
                         self.window_instance.tableView.setModel(table_model)
+                        # install event filter pour pouvoir récupérer un évenement d'appui de CTRL+C (copy) quand on a sélectionné des cellules
+                        self.window_instance.tableView.installEventFilter(table_model)
                         # set color and style header
                         # stylesheet = "::section{Background-color:rgb(179, 224, 229);border-radius:14px;}"   # Pour ne pas avoir les bordures des cases du header
                         stylesheet = "::section{Background-color:rgb(179, 224, 229)}"  # Couleur bleu ciel pour l'entête du tableau
