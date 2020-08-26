@@ -1,6 +1,4 @@
 import configparser
-import csv
-import io
 import logging
 import os.path
 import pathlib

@@ -1,5 +1,3 @@
-import csv
-import io
 import logging
 import os
 import time
@@ -17,7 +15,7 @@ import constantes
 class Tools(QtWidgets.QWidget):
     def __init__(self, window_instance):
         self.window_instance = window_instance
-        # super(Tools, self).__init__()
+        super(Tools, self).__init__()
         self.list_result_saut = []
 
     def is_db_empty(self):
