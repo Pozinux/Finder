@@ -234,7 +234,11 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
     def see_about(self):
         try:
             with open(os.path.join('data/about.txt'), 'r') as f:
-                self.textEdit.setText(f.read())
+                # self.textEdit.setText(f.read())
+                message_box_about = QtWidgets.QMessageBox()
+                message_box_about.setWindowTitle("A propos de Finder")
+                message_box_about.setText(f.read())
+                message_box_about.exec_()
         except IOError:
             print("File retrieving error...")
             self.textEdit.setText(f.read())
