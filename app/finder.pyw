@@ -238,6 +238,7 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
                 message_box_about = QtWidgets.QMessageBox()
                 message_box_about.setWindowTitle("A propos de Finder")
                 message_box_about.setText(f.read())
+                # message_box_about.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)  # Pouvoir sélectionner par la souris ce qu'il y a dans le messageBox
                 message_box_about.exec_()
         except IOError:
             print("File retrieving error...")
@@ -257,6 +258,7 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
         message_box_authorized_files = QtWidgets.QMessageBox()
         message_box_authorized_files.setWindowTitle("Liste des fichiers autorisés")
         message_box_authorized_files.setText(f"Fichiers d'exports autorisés à être importés dans la base :\n\n{str(authorized_files_source_list_cr)}")
+        # message_box_authorized_files.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)  # Pouvoir sélectionner par la souris ce qu'il y a dans le messageBox
         message_box_authorized_files.exec_()
 
     def display_list_last_modifications_exports(self):
@@ -268,7 +270,7 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
         message_box_dates_exports = QtWidgets.QMessageBox()
         message_box_dates_exports.setWindowTitle("Dates de dernières modifications des exports")
         message_box_dates_exports.setText(f"{self.exports_folders_dates}")
-        message_box_dates_exports.setStyleSheet("QLabel{min-width: 300px;}")
+        message_box_dates_exports.setStyleSheet("QLabel{min-width: 300px;}")  # Donner une largeur à la message box car sinon on ne voit pas le titre en entier
         message_box_dates_exports.exec_()
 
     def export_result(self):
@@ -308,7 +310,6 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
         self.reset_progressbar_statusbar()
         data_list = []
         list_data_cmdb = []
-        df = None
         df_cmdb = None
         files_paths_authorized_list = []
 
@@ -325,7 +326,7 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
             if file_is_authorized:
                 files_paths_authorized_list.append(file_path)
 
-        if export_type == "opca" or export_type == "vmware":
+        if export_type in ["opca", "vmware"]:
             # Create list of list from vmware and opca export files
             files_paths_authorized_list_len = len(files_paths_authorized_list)
             step = 0
@@ -354,7 +355,7 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
                     # The dataframe will contains only these colums
                     df = df[["Machine Virtuelle", "DNS Name", "management", "Compute Node"]]
 
-                elif export_type == "vmware":
+                else:
                     df = pandas.read_excel(file_path_authorized)
                     # Add a column to the dataframe
                     df['management'] = file_name_authorized
@@ -434,26 +435,24 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
                 db_connection.sql_query_execute("DELETE FROM serveur_" + export_type)
                 main_window.textEdit.setText(f"Insertion des données de {export_type} dans la base...")
                 QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
-                if export_type == "opca":
-                    db_connection.sql_query_executemany(f"INSERT INTO serveur_opca (serveur_name, dns_name, management_name, host_name) VALUES (?,?,?,?)", data_list)
-                elif export_type == "vmware":
-                    db_connection.sql_query_executemany(f"INSERT INTO serveur_vmware (serveur_name, dns_name, management_name, host_name) VALUES (?,?,?,?)", data_list)
-                elif export_type == "cmdb":
+                if export_type == "cmdb":
                     db_connection.sql_query_executemany(f"INSERT INTO serveur_cmdb (serveur_name, environment_name, device_type, operational_status, system_type, asset) VALUES (?,?,?,?,?,?)", list_data_cmdb)
                 elif export_type == "cmdb_all":
                     db_connection.sql_query_executemany(f"INSERT INTO serveur_cmdb_all (serveur_name, environment_name, device_type, operational_status, system_type) VALUES (?,?,?,?,?)", list_data_cmdb_all)
 
+                elif export_type == "opca":
+                    db_connection.sql_query_executemany(f"INSERT INTO serveur_opca (serveur_name, dns_name, management_name, host_name) VALUES (?,?,?,?)", data_list)
+                elif export_type == "vmware":
+                    db_connection.sql_query_executemany(f"INSERT INTO serveur_vmware (serveur_name, dns_name, management_name, host_name) VALUES (?,?,?,?)", data_list)
                 if db_connection.error_db_execution is None:
                     main_window.textEdit.setText(f"La base de données {export_type} contient {str(db_connection.cursor.rowcount)} lignes.")
                     main_window.progressBar.setValue(100)  # 100 -> 100%
                     main_window.statusBar.showMessage("Action terminée !")
-                    main_window.reset_progressbar_statusbar()
                 else:
                     main_window.textEdit.setText(db_connection.message_error_execution_db)
-                    main_window.reset_progressbar_statusbar()
             else:
                 main_window.textEdit.setText(db_connection.message_error_connection_db)
-                main_window.reset_progressbar_statusbar()
+            main_window.reset_progressbar_statusbar()
 
     def upload_one_export(self):
         self.reset_progressbar_statusbar()
