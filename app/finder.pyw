@@ -253,7 +253,11 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
     def display_list_authorized_files(self):
         self.list_authorized_files()
         authorized_files_source_list_cr = "\n".join(self.authorized_files_source_list)
-        self.textEdit.setText(f"Fichiers d'exports autorisés à être importés dans la base :\n\n{str(authorized_files_source_list_cr)}")
+        # self.textEdit.setText(f"Fichiers d'exports autorisés à être importés dans la base :\n\n{str(authorized_files_source_list_cr)}")
+        message_box_authorized_files = QtWidgets.QMessageBox()
+        message_box_authorized_files.setWindowTitle("Liste des fichiers autorisés")
+        message_box_authorized_files.setText(f"Fichiers d'exports autorisés à être importés dans la base :\n\n{str(authorized_files_source_list_cr)}")
+        message_box_authorized_files.exec_()
 
     def export_result(self):
         textedit_content = tools_instance.list_result_saut
