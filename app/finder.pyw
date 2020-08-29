@@ -7,6 +7,7 @@ import time
 
 import pandas
 from PySide2 import QtWidgets, QtGui, QtCore
+from PySide2.QtGui import QPixmap, QIcon
 
 import constantes
 from DatabaseGestionSqlite import DatabaseGestionSqlite
@@ -239,6 +240,10 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
                 message_box_about.setWindowTitle("A propos de Finder")
                 message_box_about.setText(f.read())
                 # message_box_about.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)  # Pouvoir sélectionner par la souris ce qu'il y a dans le messageBox
+                # Changer l'icone de la message_box
+                QPixmap.pixmap = QPixmap("icons/about.png")
+                message_box_about.setWindowIcon(QIcon(QPixmap.pixmap))
+                # Afficher la message box
                 message_box_about.exec_()
         except IOError:
             print("File retrieving error...")
@@ -256,9 +261,16 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
         authorized_files_source_list_cr = "\n".join(self.authorized_files_source_list)
         # self.textEdit.setText(f"Fichiers d'exports autorisés à être importés dans la base :\n\n{str(authorized_files_source_list_cr)}")
         message_box_authorized_files = QtWidgets.QMessageBox()
-        message_box_authorized_files.setWindowTitle("Liste des fichiers autorisés")
-        message_box_authorized_files.setText(f"Fichiers d'exports autorisés à être importés dans la base :\n\n{str(authorized_files_source_list_cr)}")
+        message_box_authorized_files.setWindowTitle("Liste des fichiers autorisés à être importés dans la base :")
+        message_box_authorized_files.setStyleSheet("QLabel{min-width: 400px;}")  # Donner une largeur à la message box car sinon on ne voit pas le titre en entier
+        message_box_authorized_files.setText(str(authorized_files_source_list_cr))
+        # message_box_authorized_files.setIcon(QtWidgets.QMessageBox.Information)  # Affiche un icon "information" dans la box
+        message_box_authorized_files.icon()  #
         # message_box_authorized_files.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)  # Pouvoir sélectionner par la souris ce qu'il y a dans le messageBox
+        # Changer l'icone de la message_box
+        QPixmap.pixmap = QPixmap("icons/list.png")
+        message_box_authorized_files.setWindowIcon(QIcon(QPixmap.pixmap))
+        # Afficher la message box
         message_box_authorized_files.exec_()
 
     def display_list_last_modifications_exports(self):
@@ -268,9 +280,13 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
         self.get_export_folder_date("cmdb_all")  # Récupérer la date du répertoire d'exports cmdb_all
         self.exports_folders_dates = self.result_folder_vmware + "\n\n" + self.result_folder_opca + "\n\n" + self.result_folder_cmdb + "\n\n" + self.result_folder_cmdb_all
         message_box_dates_exports = QtWidgets.QMessageBox()
-        message_box_dates_exports.setWindowTitle("Dates de dernières modifications des exports")
+        message_box_dates_exports.setWindowTitle("Dates des dernières modifications des exports :")
         message_box_dates_exports.setText(f"{self.exports_folders_dates}")
         message_box_dates_exports.setStyleSheet("QLabel{min-width: 300px;}")  # Donner une largeur à la message box car sinon on ne voit pas le titre en entier
+        # Changer l'icone de la message_box
+        QPixmap.pixmap = QPixmap("icons/list.png")
+        message_box_dates_exports.setWindowIcon(QIcon(QPixmap.pixmap))
+        # Afficher la message box
         message_box_dates_exports.exec_()
 
     def export_result(self):
