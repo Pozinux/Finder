@@ -64,12 +64,6 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
         pathlib.Path(constantes.EXPORTS_CMDB_DIR).mkdir(parents=True, exist_ok=True)  # Creating the cmdb export folder if it does not already exist
         pathlib.Path(constantes.EXPORTS_CMDB_ALL_DIR).mkdir(parents=True, exist_ok=True)  # Creating the cmdb_all export folder if it does not already exist
 
-        self.get_export_folder_date("vmware")  # Récupérer et afficher la date du répertoire d'exports vmware
-        self.get_export_folder_date("opca")  # Récupérer et afficher la date du répertoire d'exports opca
-        self.get_export_folder_date("cmdb")  # Récupérer et afficher la date du répertoire d'exports cmdb
-        self.get_export_folder_date("cmdb_all")  # Récupérer et afficher la date du répertoire d'exports cmdb_all
-        self.display_exports_folders_dates()
-
         self.list_authorized_files()  # Génére la liste des fichiers authorisés à l'ouverture de l'appli afin de pouvoir lister les exports (dans paramètres)
 
     def __str__(self):
@@ -143,6 +137,11 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
         list_files_authorized_action.setStatusTip("Liste les exports autorisés à être importés dans la base en fonction des informations du fichier .ini")
         list_files_authorized_action.triggered.connect(self.display_list_authorized_files)
 
+        # Menu Parameters > Date de dernières modifications des exports
+        list_last_modifications_exports_action = QtWidgets.QAction(QtGui.QIcon('icons/list.png'), '&Lister les dates de dernières modifications des exports', self)
+        list_last_modifications_exports_action.setStatusTip("Liste les dates de dernieres modifications des exports")
+        list_last_modifications_exports_action.triggered.connect(self.display_list_last_modifications_exports)
+
         # Menu About > About
         see_about_action = QtWidgets.QAction(QtGui.QIcon('icons/about.png'), '&A propos', self)
         see_about_action.setStatusTip("About")
@@ -161,6 +160,7 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
         self.menuParameters.addAction(list_exports_action_cmdb)
         self.menuParameters.addAction(list_exports_action_cmdb_all)
         self.menuParameters.addAction(list_files_authorized_action)
+        self.menuParameters.addAction(list_last_modifications_exports_action)
         self.menuAbout.addAction(see_about_action)
 
     def rename_exports(self):
@@ -202,17 +202,13 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
         last_modified_date = time.strftime('%d/%m/%Y', time.gmtime(os.path.getmtime(fr"{constantes.EXPORTS_DIR}\exports_{export_type}")))
 
         if export_type == "vmware":
-            self.result_folder_vmware = f"Dernières modifications des exports {export_type} : {str(last_modified_date)}"
+            self.result_folder_vmware = f"Exports {export_type} : {str(last_modified_date)}"
         elif export_type == "opca":
-            self.result_folder_opca = f"Dernières modifications des exports {export_type} : {str(last_modified_date)}"
+            self.result_folder_opca = f"Exports {export_type} : {str(last_modified_date)}"
         elif export_type == "cmdb":
-            self.result_folder_cmdb = f"Dernières modifications des exports {export_type} : {str(last_modified_date)}"
+            self.result_folder_cmdb = f"Exports {export_type} : {str(last_modified_date)}"
         elif export_type == "cmdb_all":
-            self.result_folder_cmdb_all = f"Dernières modifications des exports {export_type} : {str(last_modified_date)}"
-
-    def display_exports_folders_dates(self):
-        self.exports_folders_dates = self.result_folder_vmware + "\n\n" + self.result_folder_opca + "\n\n" + self.result_folder_cmdb + "\n\n" + self.result_folder_cmdb_all
-        self.textEdit_2.setText(f"{self.exports_folders_dates}")
+            self.result_folder_cmdb_all = f"Exports {export_type} : {str(last_modified_date)}"
 
     @staticmethod
     def read_authorized_files_config(section_ini_authorized_files):
@@ -259,13 +255,19 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
         message_box_authorized_files.setText(f"Fichiers d'exports autorisés à être importés dans la base :\n\n{str(authorized_files_source_list_cr)}")
         message_box_authorized_files.exec_()
 
+    def display_list_last_modifications_exports(self):
+        self.get_export_folder_date("vmware")  # Récupérer la date du répertoire d'exports vmware
+        self.get_export_folder_date("opca")  # Récupérer la date du répertoire d'exports opca
+        self.get_export_folder_date("cmdb")  # Récupérer la date du répertoire d'exports cmdb
+        self.get_export_folder_date("cmdb_all")  # Récupérer la date du répertoire d'exports cmdb_all
+        self.exports_folders_dates = self.result_folder_vmware + "\n\n" + self.result_folder_opca + "\n\n" + self.result_folder_cmdb + "\n\n" + self.result_folder_cmdb_all
+        message_box_dates_exports = QtWidgets.QMessageBox()
+        message_box_dates_exports.setWindowTitle("Dates de dernières modifications des exports")
+        message_box_dates_exports.setText(f"{self.exports_folders_dates}")
+        message_box_dates_exports.setStyleSheet("QLabel{min-width: 300px;}")
+        message_box_dates_exports.exec_()
+
     def export_result(self):
-        textedit_content = tools_instance.list_result_saut
-        # textedit_content = self.textEdit.toPlainText()  # We retrieve the content of the note
-        # textedit_content = textedit_content.replace(' --> ', ';')  # We transform it into.csv with ; as a separator
-
-        # print(tools_instance.list_result_saut)
-
         save_path = QtWidgets.QFileDialog.getExistingDirectory()
         logging.debug(f"selected_folder: {save_path}")
 
@@ -275,6 +277,7 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
             full_name = os.path.join(save_path, f"result_finder_{timestr}.csv")
             full_name_with_good_slash = os.path.normpath(full_name)
             file1 = open(full_name, "w")
+            textedit_content = tools_instance.list_result_saut
             file1.write(textedit_content)
             self.statusBar.showMessage(f"Resultat enregistré dans {full_name_with_good_slash}")
             file1.close()

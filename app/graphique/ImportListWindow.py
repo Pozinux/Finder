@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Bull\Dev\Finder\Finder_repogit\app\graphique\ImportListWindow.ui',
-# licensing of 'C:\Bull\Dev\Finder\Finder_repogit\app\graphique\ImportListWindow.ui' applies.
+# Form implementation generated from reading ui file 'D:\MAISON\Informatique\Dev\Finder\Finder_repogit\app\graphique\ImportListWindow.ui',
+# licensing of 'D:\MAISON\Informatique\Dev\Finder\Finder_repogit\app\graphique\ImportListWindow.ui' applies.
 #
-# Created: Mon Aug 24 11:05:19 2020
+# Created: Sat Aug 29 16:02:52 2020
 #      by: pyside2-uic  running on PySide2 5.11.2
 #
 # WARNING! All changes made in this file will be lost!
