@@ -150,7 +150,7 @@ class Tools(QtWidgets.QWidget):
                     # print(self.list_result_saut)
                     # Display result in text edit
                     # self.window_instance.textEdit.setText(list_result_saut)
-                    self.window_instance.textEdit.setText("CTRL+C pour copier les données des cellules sélectionnées.\nCTRL+A pour sélectionner toutes les données.\nMenu \"Fichier > Exporter le résultat\" pour exporter le résultat en CSV\nCliquer sur les noms des colonnes pour trier")
+                    self.window_instance.textEdit.setText("CTRL+A pour sélectionner toutes les données.\nCTRL+C pour copier les données des cellules sélectionnées.\nCTRL+V pour coller dans un fichier texte au format .CSV\nCliquer sur les noms des colonnes pour trier")
                     # Display data results in tableview
                     # header table view
                     header = ['Nom', 'vCenter ou ESXi (vmware), Management Node (opca)', 'Nom DNS (vmware)', 'Environnement/Application (CMDB)', 'Type (CMDB)', 'Status opérationnel (CMDB)', 'Type de Système (CMDB)', 'Asset (CMDB)']
