@@ -405,12 +405,17 @@ class Tools(QtWidgets.QWidget):
         :return: A booleen True if the file is part of the authorized list or False if not
         """
 
-        if file in self.window_instance.authorized_files_source_list:  # Lire l'attribut de l'instance qui a déjà été initialisé
-            logging.debug(f"is_file_authorized : \"{file}\" is an authorized file.")
-            file_authorized = True
-        else:
-            logging.debug(f"is_file_authorized : \"{file}\" is not an authorized file.")
-            file_authorized = False
+        # Remplacement du bloc ci-dessous par l'opérateur conditionnel ternaire après
+        # if file in self.window_instance.authorized_files_source_list:  # Lire l'attribut de l'instance qui a déjà été initialisé
+        #     logging.debug(f"is_file_authorized : \"{file}\" is an authorized file.")
+        #     file_authorized = True
+        # else:
+        #     logging.debug(f"is_file_authorized : \"{file}\" is not an authorized file.")
+        #     file_authorized = False
+
+        # Opérateur conditionnel ternaire pour remplacer le bloc ci-dessus
+        file_authorized = True if file in self.window_instance.authorized_files_source_list else False
+        logging.debug(f"is_file_authorized : Is file \"{file}\" is an authorized file = {file_authorized}")
 
         return file_authorized
 
