@@ -44,7 +44,7 @@ class Tools(QtWidgets.QWidget):
         search_choice = self.window_instance.comboBox.currentText()
         self.window_instance.textEdit.setText("Connexion à la base de données...")
         QtWidgets.QApplication.processEvents()  # Force a refresh of the UI
-        # dict_search_choice = {'Serveur': 'serveur_name', 'Host': 'host_name', 'Application': 'appli_name'} # test
+        # dict_search_choice = {'Serveur': 'serveur_name', 'Host': 'host_name', 'Application': 'appli_name'}
         # search_choice = dict_search_choice.get(search_choice, 'default')  # We get the field to use for the select and where in the SQL query and if it is neither of them we put "default"
         logging.debug(f"search_choice: {search_choice}")
         logging.debug(f"search_list: {search_list}")
